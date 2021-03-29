@@ -6,6 +6,10 @@ Fractal Python
 .. image:: https://img.shields.io/pypi/v/fractal_python.svg
         :target: https://pypi.python.org/pypi/fractal_python
 
+.. image:: https://coveralls.io/repos/github/pytest-dev/pytest-mock/badge.svg?branch=master
+     :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
+     :alt: Coverage
+
 .. image:: https://img.shields.io/travis/JeremyDTaylor/fractal_python.svg
         :target: https://travis-ci.com/JeremyDTaylor/fractal_python
 
@@ -20,7 +24,6 @@ Fractal Python
 .. image:: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/shield.svg
      :target: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/
      :alt: Updates
-
 
 
 Python SDK for Fractal Labs API
