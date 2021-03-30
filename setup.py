@@ -2,47 +2,54 @@
 
 """The setup script."""
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
-with open('README.rst') as readme_file:
+with open("README.rst") as readme_file:
     readme = readme_file.read()
 
-with open('HISTORY.rst') as history_file:
+with open("HISTORY.rst") as history_file:
     history = history_file.read()
 
-requirements = ['requests>=2.25.1', 'attr>=0.3.1', 'deserialize>=1.8.0', 'arrow>=1.15.0']
+requirements = [
+    "requests>=2.25.1",
+    "attr>=0.3.1",
+    "deserialize>=1.8.0",
+    "arrow>=1.15.0",
+]
 
-setup_requirements = ['pytest-runner', ]
+setup_requirements = [
+    "pytest-runner",
+]
 
-test_requirements = ['pytest>=3', 'pytest-mock>=3.5.1', 'requests-mock>=1.7.0']
+test_requirements = ["pytest>=3", "pytest-mock>=3.5.1", "requests-mock>=1.7.0"]
 
 setup(
     author="Jeremy David Taylor",
-    author_email='jeremy@tab2.com',
-    python_requires='>=3.5',
+    author_email="jeremy@tab2.com",
+    python_requires=">=3.5",
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
+        "Natural Language :: English",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
     ],
     description="Python SDK for Fractal Labs API",
     install_requires=requirements,
     license="Apache Software License 2.0",
-    long_description=readme + '\n\n' + history,
+    long_description=readme + "\n\n" + history,
     include_package_data=True,
-    keywords='fractal_python',
-    name='fractal_python',
-    packages=find_packages(include=['fractal_python', 'fractal_python.*']),
+    keywords="fractal_python",
+    name="fractal_python",
+    packages=find_packages(include=["fractal_python", "fractal_python.*"]),
     setup_requires=setup_requirements,
-    test_suite='tests',
+    test_suite="tests",
     tests_require=test_requirements,
-    url='https://github.com/JeremyDTaylor/fractal_python',
-    version='0.1.0',
+    url="https://github.com/JeremyDTaylor/fractal_python",
+    version="0.1.0",
     zip_safe=False,
 )
