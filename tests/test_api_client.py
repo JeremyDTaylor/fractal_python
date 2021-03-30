@@ -1,22 +1,50 @@
+import json
+
+import arrow
+import pytest
+
 from fractal_python import api_client
+from fractal_python.api_client import ApiClient
+
+TOKEN_RESPONSE = {
+    "access_token": "access token e.g. knkjkd123ldk",
+    "partner_id": "Partner ID e.g. 1juji12f",
+    "expires_in": 1800,
+    "token_type": "Bearer",
+}
 
 
-def test_sandbox():
-    client = api_client.sandbox("sandbox-key", "sandbox-partner")
-    assert "sandbox-key" in client.default_headers.values()
-    assert "sandbox-partner" in client.default_headers.values()
+def make_sandbox(requests_mock) -> ApiClient:
+    requests_mock.register_uri("POST", "/token", text=json.dumps(TOKEN_RESPONSE))
+    return api_client.sandbox("sandbox-key", "sandbox-partner")
 
 
-def test_live():
-    client = api_client.live("live-key", "live-partner")
-    assert "live-key" in client.default_headers.values()
-    assert "live-partner" in client.default_headers.values()
+@pytest.fixture()
+def sandbox(requests_mock) -> ApiClient:
+    return make_sandbox(requests_mock)
 
 
-def test_get_token(requests_mock):
-    client = api_client.ApiClient("http://123-fake-api.com", "key", "id")
-    requests_mock.register_uri(
-        "POST", "http://123-fake-api.com/token", text="test_get_token"
+@pytest.fixture
+def live(requests_mock) -> ApiClient:
+    requests_mock.register_uri("POST", "/token", text=json.dumps(TOKEN_RESPONSE))
+    return api_client.sandbox("live-key", "live-partner")
+
+
+def test_sandbox(sandbox):
+    assert "sandbox-key" in sandbox.headers.values()
+    assert "sandbox-partner" in sandbox.headers.values()
+
+
+def test_live(live):
+    assert "live-key" in live.headers.values()
+    assert "live-partner" in live.headers.values()
+
+
+def test_authorise(requests_mock, freezer, sandbox):
+    requests_mock.register_uri("POST", "/token", text=json.dumps(TOKEN_RESPONSE))
+    sandbox.expires_at = arrow.now().shift(seconds=-1801)
+    sandbox.authorise()
+    assert (
+        sandbox.expires_at.int_timestamp
+        == arrow.now().shift(seconds=1800).int_timestamp
     )
-    response = client.get_token()
-    assert response.text == "test_get_token"

@@ -5,9 +5,6 @@
 import pytest
 
 
-from fractal_python import fractal_python
-
-
 @pytest.fixture
 def response():
     """Sample pytest fixture.

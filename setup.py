@@ -21,7 +21,12 @@ setup_requirements = [
     "pytest-runner",
 ]
 
-test_requirements = ["pytest>=6", "pytest-mock>=3.5.1", "requests-mock>=1.7.0"]
+test_requirements = [
+    "pytest>=6",
+    "pytest-mock>=3.5.1",
+    "requests-mock>=1.7.0",
+    "pytest-freezegun>=0.4.2",
+]
 
 setup(
     author="Jeremy David Taylor",
