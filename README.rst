@@ -2,9 +2,12 @@
 Fractal Python
 ==============
 
-
 .. image:: https://img.shields.io/pypi/v/fractal_python.svg
         :target: https://pypi.python.org/pypi/fractal_python
+
+.. image:: https://img.shields.io/pypi/pyversions/fractal_python.svg
+   :alt: Supported Python Versions
+   :target: https://pypi.python.org/pypi/fractal_python
 
 .. image:: https://coveralls.io/repos/github/pytest-dev/pytest-mock/badge.svg?branch=master
      :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
@@ -24,6 +27,10 @@ Fractal Python
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
      :target: https://github.com/ambv/black
      :alt: Black code style
+
+.. image:: http://www.mypy-lang.org/static/mypy_badge.svg
+     :target: http://mypy-lang.org/
+     :alt: Checked with mypy
 
 .. image:: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/shield.svg
      :target: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/
