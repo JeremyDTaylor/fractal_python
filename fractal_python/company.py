@@ -22,6 +22,6 @@ class Company(object):
 
 
 def get_companies(client) -> List[Company]:
-    response = client.call_api('/company/v2/companies', 'GET')
+    response = client.call_api("/company/v2/companies", "GET")
     json_response = json.loads(response.text)
     return deserialize.deserialize(List[Company], json_response)
