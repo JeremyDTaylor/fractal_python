@@ -14,14 +14,14 @@ requirements = [
     "requests>=2.25.1",
     "attr>=0.3.1",
     "deserialize>=1.8.0",
-    "arrow>=1.15.0",
+    "arrow>=1.0.0",
 ]
 
 setup_requirements = [
     "pytest-runner",
 ]
 
-test_requirements = ["pytest>=3", "pytest-mock>=3.5.1", "requests-mock>=1.7.0"]
+test_requirements = ["pytest>=6", "pytest-mock>=3.5.1", "requests-mock>=1.7.0"]
 
 setup(
     author="Jeremy David Taylor",
