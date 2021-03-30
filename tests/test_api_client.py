@@ -27,7 +27,7 @@ def sandbox(requests_mock) -> ApiClient:
 @pytest.fixture
 def live(requests_mock) -> ApiClient:
     requests_mock.register_uri("POST", "/token", text=json.dumps(TOKEN_RESPONSE))
-    return api_client.sandbox("live-key", "live-partner")
+    return api_client.live("live-key", "live-partner")
 
 
 def test_sandbox(sandbox):
