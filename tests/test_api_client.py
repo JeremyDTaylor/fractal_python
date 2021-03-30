@@ -8,7 +8,7 @@ def test_sandbox():
 
 
 def test_live():
-    client = api_client.sandbox("live-key", "live-partner")
+    client = api_client.live("live-key", "live-partner")
     assert "live-key" in client.default_headers.values()
     assert "live-partner" in client.default_headers.values()
 

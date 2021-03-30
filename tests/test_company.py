@@ -1,5 +1,5 @@
 from fractal_python import api_client
-from fractal_python.company import get_companies
+from fractal_python.company import get_companies, get_company
 
 COMPANIES = [
     {
@@ -32,3 +32,15 @@ def test_get_companies(requests_mock):
     client = api_client.sandbox("sandbox-key", "sandbox-partner")
     companies = get_companies(client)
     assert len(companies) == 2
+
+
+def test_get_company(requests_mock):
+    for x in COMPANIES:
+        requests_mock.register_uri(
+            "GET",
+            "https://sandbox.askfractal.com/company/v2/companies/" + x["id"],
+            json=x,
+        )
+    client = api_client.sandbox("sandbox-key", "sandbox-partner")
+    company = get_company(client, COMPANIES[0]["id"])
+    assert company.name == COMPANIES[0]["name"]

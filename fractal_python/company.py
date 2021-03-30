@@ -1,10 +1,11 @@
 import json
-
-import attr
-import deserialize
 from typing import List
 
 import arrow
+import attr
+import deserialize  # type: ignore
+
+from fractal_python.api_client import ApiClient
 
 
 @attr.s(auto_attribs=True)
@@ -21,7 +22,15 @@ class Company(object):
     external_id: str
 
 
-def get_companies(client) -> List[Company]:
+def get_companies(client: ApiClient) -> List[Company]:
     response = client.call_api("/company/v2/companies", "GET")
     json_response = json.loads(response.text)
     return deserialize.deserialize(List[Company], json_response)
+
+
+def get_company(client: ApiClient, id: str) -> Company:
+    response = client.call_api(
+        "/company/v2/companies/:companyId", "GET", path_params={":companyId": id}
+    )
+    json_response = json.loads(response.text)
+    return deserialize.deserialize(Company, json_response)

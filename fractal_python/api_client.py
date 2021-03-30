@@ -1,4 +1,5 @@
 from urllib.parse import quote
+
 import requests
 
 SANDBOX = "https://sandbox.askfractal.com"
@@ -23,16 +24,16 @@ class ApiClient(object):
         path_params=None,
         query_params=None,
         body=None,
-    ) -> requests.request:
+    ) -> requests.Response:
         if path_params:
-            for k, v in path_params:
-                resource_path = resource_path.replace("{%s}" % k, quote(str(v)))
+            for k, v in path_params.items():
+                resource_path = resource_path.replace("%s" % k, quote(str(v)))
         url = self.base_url + resource_path
         return requests.request(
             method, url, params=query_params, headers=self.default_headers, data=body
         )
 
-    def get_token(self) -> requests.request:
+    def get_token(self) -> requests.Response:
         return self.call_api("/token", "POST")
 
 

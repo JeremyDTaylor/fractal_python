@@ -17,6 +17,10 @@ Fractal Python
         :target: https://fractal-python.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
 
+.. image:: https://results.pre-commit.ci/badge/github/JeremyDTaylor/fractal_python/master.svg
+   :target: https://results.pre-commit.ci/latest/github/JeremyDTaylor/fractal_python/master
+   :alt: pre-commit.ci status
+
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
      :target: https://github.com/ambv/black
      :alt: Black code style
