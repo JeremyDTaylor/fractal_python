@@ -15,6 +15,7 @@ requirements = [
     "attr>=0.3.1",
     "deserialize>=1.8.0",
     "arrow>=1.0.0",
+    "stringcase>=1.2.0",
 ]
 
 setup_requirements = [

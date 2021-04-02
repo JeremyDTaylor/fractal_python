@@ -5,7 +5,9 @@ import pytest
 from fractal_python.api_client import ApiClient
 from fractal_python.company import (
     Company,
+    CompanyEncoder,
     NewCompany,
+    NewCompanyEncoder,
     create_company,
     delete_company,
     get_companies,
@@ -98,8 +100,75 @@ GET_COMPANY = {
     "address": "London",
     "externalId": "19988-7766",
     "crn": "14455-345",
-    "createdAt": "2020-10-28T15:27:15.367Z",
+    "createdAt": "2020-10-28T15:27:15.367000+00:00",
 }
+
+
+def test_deserialize_company():
+    company = deserialize.deserialize(Company, GET_COMPANY)
+    assert company.id == GET_COMPANY["id"]
+    assert company.name == GET_COMPANY["name"]
+    assert company.description == GET_COMPANY["description"]
+    assert company.website == GET_COMPANY["website"]
+    assert company.industry == GET_COMPANY["industry"]
+    assert company.address == GET_COMPANY["address"]
+    assert company.external_id == GET_COMPANY["externalId"]
+    assert company.crn == GET_COMPANY["crn"]
+    assert company.created_at.isoformat() == GET_COMPANY["createdAt"]
+
+
+@pytest.fixture()
+def valid_new_company() -> NewCompany:
+    return NewCompany(
+        name="valid_new_company name",
+        description="valid_new_company description",
+        website="valid_new_company website",
+        industry="valid_new_company industry",
+        address="valid_new_company address",
+        external_id="valid_new_company external id",
+        crn="valid_new_company crn",
+    )
+
+
+def test_new_company_encoder(valid_new_company: NewCompany):
+    encoder = NewCompanyEncoder()
+    new_company = encoder.default(valid_new_company)
+    assert new_company["name"] == valid_new_company.name
+    assert new_company["description"] == valid_new_company.description
+    assert new_company["website"] == valid_new_company.website
+    assert new_company["industry"] == valid_new_company.industry
+    assert new_company["address"] == valid_new_company.address
+    assert new_company["externalId"] == valid_new_company.external_id
+    assert new_company["crn"] == valid_new_company.crn
+
+
+@pytest.fixture()
+def valid_company() -> Company:
+    return Company(
+        id="company id",
+        created_at=arrow.now(),
+        name="valid_new_company name",
+        description="valid_new_company description",
+        website="valid_new_company website",
+        industry="valid_new_company industry",
+        address="valid_new_company address",
+        external_id="valid_new_company external id",
+        crn="valid_new_company crn",
+    )
+
+
+def test_company_encoder(valid_company: Company):
+    encoder = CompanyEncoder()
+    company = encoder.default(valid_company)
+    assert company["id"] == valid_company.id
+    assert company["createdAt"] == valid_company.created_at.isoformat()
+    assert company["name"] == valid_company.name
+    assert company["description"] == valid_company.description
+    assert company["website"] == valid_company.website
+    assert company["industry"] == valid_company.industry
+    assert company["address"] == valid_company.address
+    assert company["externalId"] == valid_company.external_id
+    assert company["crn"] == valid_company.crn
 
 
 @pytest.fixture()

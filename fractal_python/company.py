@@ -4,6 +4,7 @@ from typing import Generator, List, Optional
 import arrow
 import attr
 import deserialize  # type: ignore
+from stringcase import camelcase
 
 from fractal_python.api_client import ApiClient
 
@@ -39,7 +40,7 @@ def new_company(
 
 class NewCompanyEncoder(json.JSONEncoder):
     def default(self, o: NewCompany) -> dict:
-        return {k: v for k, v in o.__dict__.items() if v}
+        return {camelcase(k): v for k, v in o.__dict__.items() if v}
 
 
 @attr.s(auto_attribs=True)
@@ -52,8 +53,10 @@ class Company(NewCompany):
 
 class CompanyEncoder(json.JSONEncoder):
     def default(self, o: Company) -> dict:
-        company = {k: v for k, v in o.__dict__.items() if v and k != "created_at"}
-        company["created_at"] = o.created_at.isoformat()
+        company = {
+            camelcase(k): v for k, v in o.__dict__.items() if v and k != "created_at"
+        }
+        company[camelcase("created_at")] = o.created_at.isoformat()
         return company
 
 
