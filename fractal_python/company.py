@@ -11,13 +11,30 @@ from fractal_python.api_client import ApiClient
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class NewCompany(object):
-    name: str
+    name: str = attr.ib(
+        validator=[
+            attr.validators.instance_of(str),
+            attr.validators.matches_re(".*\\S+.*"),
+        ]
+    )
     description: Optional[str]
     website: Optional[str]
     industry: Optional[str]
     address: Optional[str]
     external_id: Optional[str]
     crn: Optional[str]
+
+
+def company(
+    name: str,
+    description=None,
+    website=None,
+    industry=None,
+    address=None,
+    external_id=None,
+    crn=None,
+) -> NewCompany:
+    return NewCompany(name, description, website, industry, address, external_id, crn)
 
 
 class NewCompanyEncoder(json.JSONEncoder):

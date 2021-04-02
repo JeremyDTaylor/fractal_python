@@ -4,6 +4,7 @@ import pytest
 from fractal_python.api_client import ApiClient
 from fractal_python.company import (
     NewCompany,
+    company,
     create_company,
     get_companies,
     get_companies_by_crn,
@@ -124,6 +125,29 @@ def test_client_paged(requests_mock, test_client) -> ApiClient:
         "GET", "/company/v2/companies?pageId=2", json=GET_COMPANIES_1_PAGE_1
     )
     return test_client
+
+
+def test_company_no_name():
+    with pytest.raises(ValueError):
+        company("")
+
+
+def test_company_none_name():
+    with pytest.raises(TypeError):
+        company(None)
+
+
+def test_company_whitespace_name():
+    with pytest.raises(ValueError):
+        company(" ")
+
+
+def test_company_simple_nonwhitespace_name():
+    company(" a")
+
+
+def test_company_special_nonwhitespace_name():
+    company(" ? .* \\ ")
 
 
 def test_get_companies_single_page(test_client: ApiClient):
