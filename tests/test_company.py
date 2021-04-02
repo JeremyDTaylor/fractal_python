@@ -1,15 +1,19 @@
+import arrow
 import deserialize  # type: ignore
 import pytest
 
 from fractal_python.api_client import ApiClient
 from fractal_python.company import (
+    Company,
     NewCompany,
-    company,
     create_company,
+    delete_company,
     get_companies,
     get_companies_by_crn,
     get_companies_by_external_id,
     get_company,
+    new_company,
+    update_company,
 )
 from tests.test_api_client import make_sandbox
 
@@ -129,25 +133,25 @@ def test_client_paged(requests_mock, test_client) -> ApiClient:
 
 def test_company_no_name():
     with pytest.raises(ValueError):
-        company("")
+        new_company("")
 
 
 def test_company_none_name():
     with pytest.raises(TypeError):
-        company(None)
+        new_company(None)
 
 
 def test_company_whitespace_name():
     with pytest.raises(ValueError):
-        company(" ")
+        new_company(" ")
 
 
 def test_company_simple_nonwhitespace_name():
-    company(" a")
+    new_company(" a")
 
 
 def test_company_special_nonwhitespace_name():
-    company(" ? .* \\ ")
+    new_company(" ? .* \\ ")
 
 
 def test_get_companies_single_page(test_client: ApiClient):
@@ -210,3 +214,40 @@ def test_get_company_by_crn(test_client: ApiClient, requests_mock):
         for item in sublist
     ]
     assert len(companies) == len(GET_COMPANIES_1_PAGE_1["results"])
+
+
+def test_delete_company_success(test_client: ApiClient, requests_mock):
+    requests_mock.register_uri("DELETE", "/company/v2/companies/1", status_code=202)
+    delete_company(test_client, company_id="1")
+
+
+def test_delete_company_404(test_client: ApiClient, requests_mock):
+    requests_mock.register_uri("DELETE", "/company/v2/companies/1", status_code=404)
+    with pytest.raises(AssertionError):
+        delete_company(test_client, company_id="1")
+
+
+@pytest.fixture()
+def min_valid_company() -> Company:
+    return Company(
+        name="Valid Company",
+        description=None,
+        website=None,
+        industry=None,
+        address=None,
+        external_id=None,
+        crn=None,
+        id="1",
+        created_at=arrow.now(),
+    )
+
+
+def test_update_company(test_client: ApiClient, requests_mock, min_valid_company):
+    requests_mock.register_uri("PUT", "/company/v2/companies/1", status_code=204)
+    update_company(test_client, min_valid_company)
+
+
+def test_update_company_error(test_client: ApiClient, requests_mock, min_valid_company):
+    requests_mock.register_uri("PUT", "/company/v2/companies/1", status_code=404)
+    with pytest.raises(AssertionError):
+        update_company(test_client, min_valid_company)

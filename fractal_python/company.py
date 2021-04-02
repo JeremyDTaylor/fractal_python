@@ -1,5 +1,5 @@
 import json
-from typing import Any, Generator, List, Optional
+from typing import Generator, List, Optional
 
 import arrow
 import attr
@@ -25,7 +25,7 @@ class NewCompany(object):
     crn: Optional[str]
 
 
-def company(
+def new_company(
     name: str,
     description=None,
     website=None,
@@ -38,7 +38,7 @@ def company(
 
 
 class NewCompanyEncoder(json.JSONEncoder):
-    def default(self, o: Any) -> Any:
+    def default(self, o: NewCompany) -> dict:
         return {k: v for k, v in o.__dict__.items() if v}
 
 
@@ -48,6 +48,13 @@ class NewCompanyEncoder(json.JSONEncoder):
 class Company(NewCompany):
     id: str
     created_at: arrow.Arrow
+
+
+class CompanyEncoder(json.JSONEncoder):
+    def default(self, o: Company) -> dict:
+        company = {k: v for k, v in o.__dict__.items() if v and k != "created_at"}
+        company["created_at"] = o.created_at.isoformat()
+        return company
 
 
 @attr.s(auto_attribs=True)
@@ -109,3 +116,24 @@ def create_company(client: ApiClient, companies: List[NewCompany]) -> List[Respo
     response = client.call_api("/company/v2/companies", "POST", body=body)
     json_response = json.loads(response.text)
     return deserialize.deserialize(List[Response], json_response)
+
+
+def delete_company(client: ApiClient, company_id: str):
+    assert company_id.strip()
+    response = client.call_api(
+        "/company/v2/companies/:companyId",
+        "DELETE",
+        path_params={":companyId": company_id},
+    )
+    assert response.status_code == 202
+
+
+def update_company(client: ApiClient, company: Company):
+    body = json.dumps(company, cls=CompanyEncoder)
+    response = client.call_api(
+        "/company/v2/companies/:companyId",
+        "PUT",
+        path_params={":companyId": company.id},
+        body=body,
+    )
+    assert response.status_code == 204
