@@ -32,6 +32,15 @@ class ApiClient(object):
             for k, v in path_params.items():
                 resource_path = resource_path.replace("%s" % k, quote(str(v)))
         url = self.base_url + resource_path
+        return self.call_url(url, method, query_params, body)
+
+    def call_url(
+        self,
+        url: str,
+        method: str,
+        query_params=None,
+        body=None,
+    ) -> requests.Response:
         self.authorise()
         return requests.request(
             method, url, params=query_params, headers=self.headers, data=body
