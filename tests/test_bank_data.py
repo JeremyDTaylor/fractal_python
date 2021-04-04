@@ -4,7 +4,13 @@ import deserialize  # type: ignore
 import pytest
 
 from fractal_python.api_client import ApiClient
-from fractal_python.bank_data import Bank, BankEncoder, new_bank, retrieve_banks
+from fractal_python.bank_data import (
+    Bank,
+    BankEncoder,
+    create_bank_consent,
+    new_bank,
+    retrieve_banks,
+)
 from tests.test_api_client import make_sandbox
 
 GET_BANKS_1_PAGE_1: Dict[str, Any] = {
@@ -87,3 +93,24 @@ def test_client_paged(requests_mock, test_client) -> ApiClient:
 def test_retrieve_banks_multiple_page(test_client_paged: ApiClient):
     banks = [item for sublist in retrieve_banks(test_client_paged) for item in sublist]
     assert len(banks) == 8
+
+
+GET_BANK_6_CONSENT = {
+    "signinUrl": "Bank's signinUrl",
+    "consentId": "ConsentID123",
+    "bankId": 6,
+    "type": "ACCOUNT",
+    "permission": "ReadAllBankData",
+}
+
+
+def test_create_bank_consent(requests_mock, test_client):
+    requests_mock.register_uri(
+        "POST", "/banking/v2/banks/6/consents", json=GET_BANK_6_CONSENT
+    )
+    consent = create_bank_consent(test_client, 6, "redirect")
+    assert consent.bank_id == 6
+    assert consent.signin_url == "Bank's signinUrl"
+    assert consent.consent_id == "ConsentID123"
+    assert consent.type == "ACCOUNT"
+    assert consent.permission == "ReadAllBankData"

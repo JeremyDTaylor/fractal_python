@@ -61,3 +61,29 @@ def _handle_get_banks_response(response):
     banks_response = deserialize.deserialize(GetBanksResponse, json_response)
     next_page = banks_response.links.get("next", None)
     return banks_response, next_page
+
+
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
+class CreateBankConsentResponse(object):
+    signin_url: str
+    consent_id: str
+    bank_id: int
+    type: str
+    permission: str
+
+
+def create_bank_consent(
+    client: ApiClient, bank_id: int, redirect: str
+) -> CreateBankConsentResponse:
+    response = client.call_api(
+        "/banking/v2/banks/:bankId/consents",
+        "POST",
+        path_params={":bankId": bank_id},
+        body=json.dumps(dict(redirect=redirect)),
+    )
+    json_response = json.loads(response.text)
+    bank_consent_response = deserialize.deserialize(
+        CreateBankConsentResponse, json_response
+    )
+    return bank_consent_response
