@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 import deserialize  # type: ignore
 import pytest
 
-from fractal_python.api_client import COMPANY_ID_HEADER, ApiClient
+from fractal_python.api_client import COMPANY_ID_HEADER, PARTNER_ID_HEADER, ApiClient
 from fractal_python.bank_data import (
     Bank,
     BankConsent,
@@ -12,6 +12,7 @@ from fractal_python.bank_data import (
     delete_bank_consent,
     new_bank,
     put_bank_consent,
+    retrieve_bank_accounts,
     retrieve_bank_consents,
     retrieve_banks,
 )
@@ -300,3 +301,136 @@ def test_delete_bank_consent(delete_consent_client):
         consent_id="ConsentID12",
         company_id="CompanyID1234",
     )
+
+
+GET_BANK_ACCOUNTS = {
+    "results": [
+        {
+            "id": "accountId1234",
+            "bankId": 6,
+            "currency": "GBP",
+            "nickname": "Business Account",
+            "account": [
+                {
+                    "schemeName": "IBAN",
+                    "identification": "GBBANKIDEN1234",
+                    "name": "Debit Account",
+                    "secondaryIdentification": "Merrchant",
+                }
+            ],
+            "externalId": "extenalid123",
+            "source": "MANUALIMPORT",
+        },
+        {
+            "id": "accountId5678",
+            "bankId": 6,
+            "currency": "GBP",
+            "nickname": "Debit Account - NatWest - Demo",
+            "account": [
+                {
+                    "schemeName": "UK.OBIE.SortCodeAccountNumber",
+                    "identification": "5000004001234",
+                    "name": "Debit Account - NatWest - Demo",
+                    "secondaryIdentification": "",
+                }
+            ],
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+    ],
+    "links": {},
+}
+
+
+@pytest.fixture()
+def accounts_client(requests_mock) -> ApiClient:
+    request_headers = {
+        COMPANY_ID_HEADER: "CompanyID1234",
+        PARTNER_ID_HEADER: "sandbox-partner",
+    }
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/accounts?bankId=6",
+        json=GET_BANK_ACCOUNTS,
+        request_headers=request_headers,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_retrieve_all_bank_accounts_1_page(accounts_client):
+    accounts = [
+        item
+        for sublist in retrieve_bank_accounts(
+            accounts_client, bank_id=6, company_id="CompanyID1234"
+        )
+        for item in sublist
+    ]
+    assert len(accounts) == 2
+
+
+GET_BANK_ACCOUNTS_PAGE_1 = {
+    "results": [
+        {
+            "id": "accountId12342",
+            "bankId": 6,
+            "currency": "GBP",
+            "nickname": "Business Account",
+            "account": [
+                {
+                    "schemeName": "IBAN",
+                    "identification": "GBBANKIDEN1234",
+                    "name": "Debit Account",
+                    "secondaryIdentification": "Merrchant",
+                }
+            ],
+            "externalId": "extenalid1232",
+            "source": "MANUALIMPORT",
+        },
+        {
+            "id": "accountId56782",
+            "bankId": 6,
+            "currency": "GBP",
+            "nickname": "Debit Account - NatWest - Demo",
+            "account": [
+                {
+                    "schemeName": "UK.OBIE.SortCodeAccountNumber",
+                    "identification": "5000004001234",
+                    "name": "Debit Account - NatWest - Demo",
+                    "secondaryIdentification": "",
+                }
+            ],
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+    ],
+    "links": {"next": "mock://test/banking/v2/accounts?pageId=2"},
+}
+
+
+@pytest.fixture()
+def paged_accounts_client(requests_mock) -> ApiClient:
+    request_headers = {
+        COMPANY_ID_HEADER: "CompanyID1234",
+        PARTNER_ID_HEADER: "sandbox-partner",
+    }
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/accounts?bankId=6",
+        json=GET_BANK_ACCOUNTS_PAGE_1,
+        request_headers=request_headers,
+    )
+    requests_mock.register_uri(
+        "GET", "mock://test/banking/v2/accounts?pageId=2", json=GET_BANK_ACCOUNTS
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_retrieve_all_bank_accounts_2_pages(paged_accounts_client):
+    accounts = [
+        item
+        for sublist in retrieve_bank_accounts(
+            paged_accounts_client, bank_id=6, company_id="CompanyID1234"
+        )
+        for item in sublist
+    ]
+    assert len(accounts) == 4

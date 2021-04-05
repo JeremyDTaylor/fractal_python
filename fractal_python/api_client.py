@@ -1,5 +1,5 @@
 import json
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import arrow
 import requests
@@ -26,7 +26,7 @@ class ApiClient(object):
         self,
         resource_path: str,
         method: str,
-        query_params: Dict[str, str] = None,
+        query_params: Dict[str, Any] = None,
         body: Optional[str] = None,
         call_headers: Optional[Dict[str, str]] = None,
     ) -> requests.Response:
@@ -43,7 +43,7 @@ class ApiClient(object):
         self,
         url: str,
         method: str,
-        query_params: Optional[Dict[str, str]] = None,
+        query_params: Optional[Dict[str, Any]] = None,
         body: Optional[str] = None,
         call_headers: Optional[Dict[str, str]] = None,
     ) -> requests.Response:

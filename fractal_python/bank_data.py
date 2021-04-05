@@ -1,5 +1,5 @@
 import json
-from typing import Any, Generator, List, Optional
+from typing import Any, Dict, Generator, List, Optional
 
 import arrow
 import attr
@@ -9,7 +9,9 @@ from stringcase import camelcase
 
 from fractal_python.api_client import COMPANY_ID_HEADER, ApiClient
 
-endpoint = "/banking/v2/banks"
+banking_endpoint = "/banking/v2"
+banks = banking_endpoint + "/banks"
+accounts = banking_endpoint + "/accounts"
 consents = "consents"
 
 
@@ -52,7 +54,7 @@ class Response(object):
 
 
 def retrieve_banks(client: ApiClient, query_params=None) -> Generator:
-    response = client.call_api(endpoint, "GET", query_params=query_params)
+    response = client.call_api(banks, "GET", query_params=query_params)
     banks_response, next_page = _handle_get_banks_response(response)
     yield banks_response.results
     while next_page:
@@ -79,11 +81,16 @@ class CreateBankConsentResponse(object):
 
 
 def _call_api(
-    client: ApiClient, url: str, method: str, body: str = None, company_id: str = None
+    client: ApiClient,
+    url: str,
+    method: str,
+    query_params: Dict[str, Any] = None,
+    body: str = None,
+    company_id: str = None,
 ) -> requests.Response:
     headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
     response: requests.Response = client.call_api(
-        url, method, body=body, call_headers=headers
+        url, method, query_params=query_params, body=body, call_headers=headers
     )
     return response
 
@@ -92,11 +99,11 @@ def create_bank_consent(
     client: ApiClient, bank_id: int, redirect: str, company_id: str
 ) -> CreateBankConsentResponse:
     response = _call_api(
-        client,
-        f"{endpoint}/{bank_id}/{consents}",
-        "POST",
-        json.dumps(dict(redirect=redirect)),
-        company_id,
+        client=client,
+        url=f"{banks}/{bank_id}/{consents}",
+        method="POST",
+        body=json.dumps(dict(redirect=redirect)),
+        company_id=company_id,
     )
     json_response = json.loads(response.text)
     bank_consent_response = deserialize.deserialize(
@@ -152,7 +159,7 @@ def retrieve_bank_consents(
     :rtype: Generator[List[BankConsent], None, None]
     """
     response = _call_api(
-        client, f"{endpoint}/{bank_id}/{consents}", "GET", company_id=company_id
+        client, f"{banks}/{bank_id}/{consents}", "GET", company_id=company_id
     )
     consents_response, next_page = _handle_retrieve_consents_response(response)
     yield consents_response.results
@@ -185,7 +192,7 @@ def put_bank_consent(
     payload = {"code": code, "id_token": id_token, "state": state}
     response = _call_api(
         client,
-        f"{endpoint}/{bank_id}/{consents}/{consent_id}",
+        f"{banks}/{bank_id}/{consents}/{consent_id}",
         "PUT",
         body=json.dumps(payload),
         company_id=company_id,
@@ -208,8 +215,71 @@ def delete_bank_consent(
     :param company_id:  the id of the company"""
     response = _call_api(
         client,
-        f"{endpoint}/{bank_id}/{consents}/{consent_id}",
+        f"{banks}/{bank_id}/{consents}/{consent_id}",
         "DELETE",
         company_id=company_id,
     )
     assert response.status_code == 202
+
+
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
+class AccountInformation(object):
+    scheme_name: str
+    identification: str
+    name: str
+    secondary_identification: Optional[str]
+
+
+def account_information(value: str) -> AccountInformation:
+    return deserialize.deserialize(List[AccountInformation], value)
+
+
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
+@deserialize.parser("account", account_information)
+class BankAccount(object):
+    id: str
+    bank_id: int
+    currency: str
+    nickname: str
+    account: List[AccountInformation]
+    external_id: str
+    source: str = attr.ib(
+        validator=[
+            attr.validators.instance_of(str),
+            attr.validators.matches_re("MANUALIMPORT|OPENBANKING"),
+        ]
+    )
+
+
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
+class GetBankAccountsResponse(object):
+    links: dict
+    results: List[BankAccount]
+
+
+def _handle_get_accounts_response(response):
+    json_response = json.loads(response.text)
+    response = deserialize.deserialize(GetBankAccountsResponse, json_response)
+    next_page = response.links.get("next", None)
+    return response, next_page
+
+
+def retrieve_bank_accounts(
+    client: ApiClient, bank_id: int, company_id: str
+) -> Generator[List[BankAccount], None, None]:
+    response = _call_api(
+        client=client,
+        url=f"{accounts}",
+        method="GET",
+        query_params={"bankId": bank_id},
+        company_id=company_id,
+    )
+    consents_response, next_page = _handle_get_accounts_response(response)
+    yield consents_response.results
+    while next_page:
+        response = client.call_url(next_page, "GET")
+        consents_response, next_page = _handle_get_accounts_response(response)
+        yield consents_response.results
