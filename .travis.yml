@@ -6,7 +6,7 @@ python:
 - 3.6
 install:
     - pip install -U virtualenv tox-travis
-    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then pip install coveralls -r example_project/requirements.txt; fi
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then pip install coveralls -r requirements_dev.txt; fi
 script:
     - tox
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coverage run --source=fractal_python setup.py test; fi

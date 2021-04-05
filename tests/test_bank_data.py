@@ -10,6 +10,7 @@ from fractal_python.bank_data import (
     BankEncoder,
     create_bank_consent,
     new_bank,
+    put_bank_consent,
     retrieve_bank_consents,
     retrieve_banks,
 )
@@ -252,3 +253,28 @@ def test_retrieve_bank_consents_by_company_id(
     ]
     assert len(consents) == 1
     assert consents[0].company_id == company_id
+
+
+@pytest.fixture()
+def put_consent_client(requests_mock) -> ApiClient:
+    request_headers = {COMPANY_ID_HEADER: "CompanyID1234"}
+    requests_mock.register_uri(
+        "PUT",
+        "/banking/v2/banks/6/consents/ConsentID12",
+        request_headers=request_headers,
+        json=GET_BY_ID_BANK_6_CONSENTS_1_PAGE,
+        status_code=204,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_put_bank_consent(put_consent_client):
+    put_bank_consent(
+        put_consent_client,
+        code="code",
+        id_token="id_token",
+        state="state",
+        bank_id=6,
+        consent_id="ConsentID12",
+        company_id="CompanyID1234",
+    )

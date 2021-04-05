@@ -160,3 +160,34 @@ def retrieve_bank_consents(
         response = client.call_url(next_page, "GET")
         consents_response, next_page = _handle_retrieve_consents_response(response)
         yield consents_response.results
+
+
+def put_bank_consent(
+    client: ApiClient,
+    code: str,
+    id_token: str,
+    state: str,
+    bank_id: int,
+    consent_id: str,
+    company_id: str,
+):
+    r"""
+    Call this after user has been redirected back from the bank
+
+    :param client: the client to use for the api call
+    :param code: to be exchanged for access token with the bank
+    :param id_token: base64 encoded JSON for verifying
+    :param state: base64b encoded JSON to persist the state
+    :param bank_id: the id of the bank to filter on
+    :param consent_id: id returned from create_bank_consent
+    :param company_id:  the id of the company
+    """
+    payload = {"code": code, "id_token": id_token, "state": state}
+    response = _call_api(
+        client,
+        f"{endpoint}/{bank_id}/{consents}/{consent_id}",
+        "PUT",
+        body=json.dumps(payload),
+        company_id=company_id,
+    )
+    assert response.status_code == 204
