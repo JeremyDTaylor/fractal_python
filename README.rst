@@ -13,6 +13,9 @@ Fractal Python
         :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
         :alt: Coverage
 
+.. image:: https://deepsource.io/gh/JeremyDTaylor/fractal_python.svg/?label=active+issues&show_trend=true
+        :target: https://deepsource.io/gh/JeremyDTaylor/fractal_python/?ref=repository-badge
+
 .. image:: https://img.shields.io/travis/JeremyDTaylor/fractal_python.svg
         :target: https://travis-ci.com/JeremyDTaylor/fractal_python
 
@@ -35,7 +38,6 @@ Fractal Python
 .. image:: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/shield.svg
      :target: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/
      :alt: Updates
-
 
 Python SDK for Fractal Labs API
 
