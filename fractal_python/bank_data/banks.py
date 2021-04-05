@@ -1,17 +1,15 @@
 import json
-from typing import Any, Dict, Generator, List, Optional
+from typing import Generator, List, Optional
 
 import arrow
 import attr
-import deserialize  # type: ignore
-import requests
+import deserialize
 from stringcase import camelcase
 
-from fractal_python.api_client import COMPANY_ID_HEADER, ApiClient
+from fractal_python.api_client import ApiClient
+from fractal_python.bank_data.api import BANKING_ENDPOINT, _call_api, arrow_or_none
 
-banking_endpoint = "/banking/v2"
-banks = banking_endpoint + "/banks"
-accounts = banking_endpoint + "/accounts"
+banks = BANKING_ENDPOINT + "/banks"
 consents = "consents"
 
 
@@ -45,12 +43,11 @@ class GetBanksResponse(object):
     results: List[Bank]
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class Response(object):
-    id: str
-    message: str
-    status: int
+def _handle_get_banks_response(response):
+    json_response = json.loads(response.text)
+    banks_response = deserialize.deserialize(GetBanksResponse, json_response)
+    next_page = banks_response.links.get("next", None)
+    return banks_response, next_page
 
 
 def retrieve_banks(client: ApiClient, query_params=None) -> Generator:
@@ -63,13 +60,6 @@ def retrieve_banks(client: ApiClient, query_params=None) -> Generator:
         yield banks_response.results
 
 
-def _handle_get_banks_response(response):
-    json_response = json.loads(response.text)
-    banks_response = deserialize.deserialize(GetBanksResponse, json_response)
-    next_page = banks_response.links.get("next", None)
-    return banks_response, next_page
-
-
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class CreateBankConsentResponse(object):
@@ -78,21 +68,6 @@ class CreateBankConsentResponse(object):
     bank_id: int
     type: str
     permission: str
-
-
-def _call_api(
-    client: ApiClient,
-    url: str,
-    method: str,
-    query_params: Dict[str, Any] = None,
-    body: str = None,
-    company_id: str = None,
-) -> requests.Response:
-    headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
-    response: requests.Response = client.call_api(
-        url, method, query_params=query_params, body=body, call_headers=headers
-    )
-    return response
 
 
 def create_bank_consent(
@@ -110,10 +85,6 @@ def create_bank_consent(
         CreateBankConsentResponse, json_response
     )
     return bank_consent_response
-
-
-def arrow_or_none(value: Any):
-    return arrow.get(value) if value else None
 
 
 @attr.s(auto_attribs=True)
@@ -220,66 +191,3 @@ def delete_bank_consent(
         company_id=company_id,
     )
     assert response.status_code == 202
-
-
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class AccountInformation(object):
-    scheme_name: str
-    identification: str
-    name: str
-    secondary_identification: Optional[str]
-
-
-def account_information(value: str) -> AccountInformation:
-    return deserialize.deserialize(List[AccountInformation], value)
-
-
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-@deserialize.parser("account", account_information)
-class BankAccount(object):
-    id: str
-    bank_id: int
-    currency: str
-    nickname: str
-    account: List[AccountInformation]
-    external_id: str
-    source: str = attr.ib(
-        validator=[
-            attr.validators.instance_of(str),
-            attr.validators.matches_re("MANUALIMPORT|OPENBANKING"),
-        ]
-    )
-
-
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetBankAccountsResponse(object):
-    links: dict
-    results: List[BankAccount]
-
-
-def _handle_get_accounts_response(response):
-    json_response = json.loads(response.text)
-    response = deserialize.deserialize(GetBankAccountsResponse, json_response)
-    next_page = response.links.get("next", None)
-    return response, next_page
-
-
-def retrieve_bank_accounts(
-    client: ApiClient, bank_id: int, company_id: str
-) -> Generator[List[BankAccount], None, None]:
-    response = _call_api(
-        client=client,
-        url=f"{accounts}",
-        method="GET",
-        query_params={"bankId": bank_id},
-        company_id=company_id,
-    )
-    consents_response, next_page = _handle_get_accounts_response(response)
-    yield consents_response.results
-    while next_page:
-        response = client.call_url(next_page, "GET")
-        consents_response, next_page = _handle_get_accounts_response(response)
-        yield consents_response.results
