@@ -9,6 +9,7 @@ from fractal_python.bank_data import (
     BankEncoder,
     create_bank_consent,
     new_bank,
+    retrieve_all_bank_consents,
     retrieve_banks,
 )
 from tests.test_api_client import make_sandbox
@@ -87,6 +88,14 @@ def test_client_paged(requests_mock, test_client) -> ApiClient:
     requests_mock.register_uri(
         "GET", "/banking/v2/banks?pageId=2", json=GET_BANKS_1_PAGE_1
     )
+    requests_mock.register_uri(
+        "GET", "/banking/v2/banks/6/consents", json=GET_ALL_BANK_6_CONSENTS_2_PAGE
+    )
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/banks/6/consents?pageId=2",
+        json=GET_ALL_BANK_6_CONSENTS_1_PAGE,
+    )
     return test_client
 
 
@@ -95,7 +104,7 @@ def test_retrieve_banks_multiple_page(test_client_paged: ApiClient):
     assert len(banks) == 8
 
 
-GET_BANK_6_CONSENT = {
+POST_BANK_6_CONSENT = {
     "signinUrl": "Bank's signinUrl",
     "consentId": "ConsentID123",
     "bankId": 6,
@@ -106,11 +115,96 @@ GET_BANK_6_CONSENT = {
 
 def test_create_bank_consent(requests_mock, test_client):
     requests_mock.register_uri(
-        "POST", "/banking/v2/banks/6/consents", json=GET_BANK_6_CONSENT
+        "POST", "/banking/v2/banks/6/consents", json=POST_BANK_6_CONSENT
     )
-    consent = create_bank_consent(test_client, 6, "redirect")
+    consent = create_bank_consent(test_client, 6, "redirect", "companyId")
     assert consent.bank_id == 6
     assert consent.signin_url == "Bank's signinUrl"
     assert consent.consent_id == "ConsentID123"
     assert consent.type == "ACCOUNT"
     assert consent.permission == "ReadAllBankData"
+
+
+GET_ALL_BANK_6_CONSENTS_1_PAGE = {
+    "results": [
+        {
+            "companyId": "CompanyID1234",
+            "permission": "READALLBANKDATA",
+            "consentId": "ConsentID12",
+            "bankId": 6,
+            "dateCreated": "2020-10-28T18:26:29.699Z",
+            "consentType": "Account",
+            "status": "AwaitingAuthorisation",
+        },
+        {
+            "companyId": "CompanyID5678",
+            "expiryDate": "2021-01-06T17:28:14.759Z",
+            "permission": "READACCOUNTSDETAIL",
+            "consentId": "ConsentID34",
+            "bankId": 6,
+            "dateCreated": "2020-10-28T18:24:28.707Z",
+            "authorisedDate": "2020-10-08T17:28:14.759Z",
+            "consentType": "Account",
+            "status": "Authorised",
+        },
+        {
+            "companyId": "CompanyID9878",
+            "permission": "READALLBANKDATA",
+            "consentId": "ConsentID98",
+            "bankId": 6,
+            "dateCreated": "2020-10-28T18:24:28.707Z",
+            "consentType": "Account",
+            "status": "Rejected",
+        },
+    ],
+    "links": {},
+}
+
+
+def test_retrieve_all_bank_consents_1_page(requests_mock, test_client):
+    requests_mock.register_uri(
+        "GET", "/banking/v2/banks/6/consents", json=GET_ALL_BANK_6_CONSENTS_1_PAGE
+    )
+    consents = [
+        item
+        for sublist in retrieve_all_bank_consents(test_client, bank_id=6)
+        for item in sublist
+    ]
+    assert len(consents) == 3
+
+
+def test_retrieve_all_bank_consents_empty_page(test_client: ApiClient, requests_mock):
+    requests_mock.register_uri(
+        "GET", "/banking/v2/banks/6/consents", json=dict(results=[], links={})
+    )
+    consents = [
+        item
+        for sublist in retrieve_all_bank_consents(test_client, bank_id=6)
+        for item in sublist
+    ]
+    assert len(consents) == 0
+
+
+GET_ALL_BANK_6_CONSENTS_2_PAGE = {
+    "results": [
+        {
+            "companyId": "CompanyID98782",
+            "permission": "READALLBANKDATA",
+            "consentId": "ConsentID982",
+            "bankId": 6,
+            "dateCreated": "2020-10-29T18:24:28.707Z",
+            "consentType": "Account",
+            "status": "Rejected",
+        }
+    ],
+    "links": {"next": "mock://test/banking/v2/banks/6/consents?pageId=2"},
+}
+
+
+def test_retrieve_all_bank_consents_multiple_page(test_client_paged: ApiClient):
+    consents = [
+        item
+        for sublist in retrieve_all_bank_consents(test_client_paged, bank_id=6)
+        for item in sublist
+    ]
+    assert len(consents) == 4

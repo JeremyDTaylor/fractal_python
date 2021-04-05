@@ -8,6 +8,8 @@ from stringcase import camelcase
 
 from fractal_python.api_client import ApiClient
 
+endpoint = "/company/v2/companies"
+
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
@@ -53,10 +55,16 @@ class Company(NewCompany):
 
 class CompanyEncoder(json.JSONEncoder):
     def default(self, o: Company) -> dict:
+        arrow_attrs = [
+            x
+            for x in dir(o)
+            if type(getattr(o, x)) == arrow.Arrow and x[:2] != "__" and x[-2:] != "__"
+        ]
         company = {
-            camelcase(k): v for k, v in o.__dict__.items() if v and k != "created_at"
+            camelcase(k): v for k, v in o.__dict__.items() if v and k not in arrow_attrs
         }
-        company[camelcase("created_at")] = o.created_at.isoformat()
+        for x in arrow_attrs:
+            company[camelcase(x)] = getattr(o, x).isoformat()
         return company
 
 
@@ -76,9 +84,7 @@ class Response(object):
 
 
 def get_companies(client: ApiClient, query_params=None) -> Generator:
-    response = client.call_api(
-        "/company/v2/companies", "GET", query_params=query_params
-    )
+    response = client.call_api(endpoint, "GET", query_params=query_params)
     companies_response, next_page = _handle_get_companies_response(response)
     yield companies_response.results
     while next_page:
@@ -96,9 +102,8 @@ def _handle_get_companies_response(response):
 
 def get_company(client: ApiClient, company_id: str) -> Company:
     response = client.call_api(
-        "/company/v2/companies/:companyId",
+        f"{endpoint}/{company_id}",
         "GET",
-        path_params={":companyId": company_id},
     )
     json_response = json.loads(response.text)
     return deserialize.deserialize(Company, json_response)
@@ -116,27 +121,22 @@ def get_companies_by_crn(client: ApiClient, crn: str) -> Generator:
 
 def create_company(client: ApiClient, companies: List[NewCompany]) -> List[Response]:
     body = json.dumps(companies, cls=NewCompanyEncoder)
-    response = client.call_api("/company/v2/companies", "POST", body=body)
+    response = client.call_api(f"{endpoint}", "POST", body=body)
     json_response = json.loads(response.text)
     return deserialize.deserialize(List[Response], json_response)
 
 
 def delete_company(client: ApiClient, company_id: str):
     assert company_id.strip()
-    response = client.call_api(
-        "/company/v2/companies/:companyId",
-        "DELETE",
-        path_params={":companyId": company_id},
-    )
+    response = client.call_api(f"{endpoint}/{company_id}", "DELETE")
     assert response.status_code == 202
 
 
 def update_company(client: ApiClient, company: Company):
     body = json.dumps(company, cls=CompanyEncoder)
     response = client.call_api(
-        "/company/v2/companies/:companyId",
+        f"{endpoint}/{company.id}",
         "PUT",
-        path_params={":companyId": company.id},
         body=body,
     )
     assert response.status_code == 204

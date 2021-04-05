@@ -1,11 +1,16 @@
 import json
-from typing import Generator, List, Optional
+from typing import Any, Generator, List, Optional
 
+import arrow
 import attr
 import deserialize  # type: ignore
+import requests
 from stringcase import camelcase
 
-from fractal_python.api_client import ApiClient
+from fractal_python.api_client import COMPANY_ID_HEADER, ApiClient
+
+endpoint = "/banking/v2/banks"
+consents = "consents"
 
 
 @attr.s(auto_attribs=True)
@@ -47,7 +52,7 @@ class Response(object):
 
 
 def retrieve_banks(client: ApiClient, query_params=None) -> Generator:
-    response = client.call_api("/banking/v2/banks", "GET", query_params=query_params)
+    response = client.call_api(endpoint, "GET", query_params=query_params)
     banks_response, next_page = _handle_get_banks_response(response)
     yield banks_response.results
     while next_page:
@@ -73,17 +78,79 @@ class CreateBankConsentResponse(object):
     permission: str
 
 
+def _call_api(
+    client: ApiClient, url: str, method: str, body: str = None, company_id: str = None
+) -> requests.Response:
+    headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
+    response: requests.Response = client.call_api(
+        url, method, body=body, call_headers=headers
+    )
+    return response
+
+
 def create_bank_consent(
-    client: ApiClient, bank_id: int, redirect: str
+    client: ApiClient, bank_id: int, redirect: str, company_id: str
 ) -> CreateBankConsentResponse:
-    response = client.call_api(
-        "/banking/v2/banks/:bankId/consents",
+    response = _call_api(
+        client,
+        f"{endpoint}/{bank_id}/{consents}",
         "POST",
-        path_params={":bankId": bank_id},
-        body=json.dumps(dict(redirect=redirect)),
+        json.dumps(dict(redirect=redirect)),
+        company_id,
     )
     json_response = json.loads(response.text)
     bank_consent_response = deserialize.deserialize(
         CreateBankConsentResponse, json_response
     )
     return bank_consent_response
+
+
+def arrow_or_none(value: Any):
+    return arrow.get(value) if value else None
+
+
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
+@deserialize.parser("expiry_date", arrow_or_none)
+@deserialize.parser("date_created", arrow_or_none)
+@deserialize.parser("authorised_date", arrow_or_none)
+class BankConsent(object):
+    company_id: str
+    permission: str
+    expiry_date: Optional[arrow.Arrow]
+    consent_id: str
+    bank_id: int
+    date_created: arrow.Arrow
+    authorised_date: Optional[arrow.Arrow]
+    consent_type: str
+    status: str
+
+
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
+class GetBankConsentsResponse(object):
+    links: dict
+    results: List[BankConsent]
+
+
+def _handle_retrieve_consents_response(response):
+    json_response = json.loads(response.text)
+    consents_response = deserialize.deserialize(GetBankConsentsResponse, json_response)
+    next_page = consents_response.links.get("next", None)
+    return consents_response, next_page
+
+
+def retrieve_all_bank_consents(
+    client: ApiClient, bank_id: int
+) -> Generator[List[BankConsent], None, None]:
+    response = _call_api(
+        client,
+        f"{endpoint}/{bank_id}/{consents}",
+        "GET",
+    )
+    consents_response, next_page = _handle_retrieve_consents_response(response)
+    yield consents_response.results
+    while next_page:
+        response = client.call_url(next_page, "GET")
+        consents_response, next_page = _handle_retrieve_consents_response(response)
+        yield consents_response.results
