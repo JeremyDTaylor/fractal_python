@@ -9,6 +9,7 @@ from fractal_python.bank_data import (
     BankConsent,
     BankEncoder,
     create_bank_consent,
+    delete_bank_consent,
     new_bank,
     put_bank_consent,
     retrieve_bank_consents,
@@ -274,6 +275,27 @@ def test_put_bank_consent(put_consent_client):
         code="code",
         id_token="id_token",
         state="state",
+        bank_id=6,
+        consent_id="ConsentID12",
+        company_id="CompanyID1234",
+    )
+
+
+@pytest.fixture()
+def delete_consent_client(requests_mock) -> ApiClient:
+    request_headers = {COMPANY_ID_HEADER: "CompanyID1234"}
+    requests_mock.register_uri(
+        "DELETE",
+        "/banking/v2/banks/6/consents/ConsentID12",
+        request_headers=request_headers,
+        status_code=202,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_delete_bank_consent(delete_consent_client):
+    delete_bank_consent(
+        delete_consent_client,
         bank_id=6,
         consent_id="ConsentID12",
         company_id="CompanyID1234",

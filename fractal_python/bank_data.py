@@ -191,3 +191,25 @@ def put_bank_consent(
         company_id=company_id,
     )
     assert response.status_code == 204
+
+
+def delete_bank_consent(
+    client: ApiClient,
+    bank_id: int,
+    consent_id: str,
+    company_id: str,
+):
+    r"""
+    Call this after user has been redirected back from the bank
+
+    :param client: the client to use for the api call
+    :param bank_id: the id of the bank to filter on
+    :param consent_id: id returned from create_bank_consent
+    :param company_id:  the id of the company"""
+    response = _call_api(
+        client,
+        f"{endpoint}/{bank_id}/{consents}/{consent_id}",
+        "DELETE",
+        company_id=company_id,
+    )
+    assert response.status_code == 202
