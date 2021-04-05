@@ -140,13 +140,19 @@ def _handle_retrieve_consents_response(response):
     return consents_response, next_page
 
 
-def retrieve_all_bank_consents(
-    client: ApiClient, bank_id: int
+def retrieve_bank_consents(
+    client: ApiClient, bank_id: int, company_id: Optional[str] = None
 ) -> Generator[List[BankConsent], None, None]:
+    r"""
+    Retrieves consents by bank id and company id
+
+    :param client: the client to use for the api call
+    :param bank_id: the id of the bank to filter on
+    :param company_id: the id of the company to filter on
+    :rtype: Generator[List[BankConsent], None, None]
+    """
     response = _call_api(
-        client,
-        f"{endpoint}/{bank_id}/{consents}",
-        "GET",
+        client, f"{endpoint}/{bank_id}/{consents}", "GET", company_id=company_id
     )
     consents_response, next_page = _handle_retrieve_consents_response(response)
     yield consents_response.results

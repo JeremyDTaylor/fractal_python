@@ -3,13 +3,14 @@ from typing import Any, Dict, List
 import deserialize  # type: ignore
 import pytest
 
-from fractal_python.api_client import ApiClient
+from fractal_python.api_client import COMPANY_ID_HEADER, ApiClient
 from fractal_python.bank_data import (
     Bank,
+    BankConsent,
     BankEncoder,
     create_bank_consent,
     new_bank,
-    retrieve_all_bank_consents,
+    retrieve_bank_consents,
     retrieve_banks,
 )
 from tests.test_api_client import make_sandbox
@@ -167,7 +168,7 @@ def test_retrieve_all_bank_consents_1_page(requests_mock, test_client):
     )
     consents = [
         item
-        for sublist in retrieve_all_bank_consents(test_client, bank_id=6)
+        for sublist in retrieve_bank_consents(test_client, bank_id=6)
         for item in sublist
     ]
     assert len(consents) == 3
@@ -179,7 +180,7 @@ def test_retrieve_all_bank_consents_empty_page(test_client: ApiClient, requests_
     )
     consents = [
         item
-        for sublist in retrieve_all_bank_consents(test_client, bank_id=6)
+        for sublist in retrieve_bank_consents(test_client, bank_id=6)
         for item in sublist
     ]
     assert len(consents) == 0
@@ -204,7 +205,50 @@ GET_ALL_BANK_6_CONSENTS_2_PAGE = {
 def test_retrieve_all_bank_consents_multiple_page(test_client_paged: ApiClient):
     consents = [
         item
-        for sublist in retrieve_all_bank_consents(test_client_paged, bank_id=6)
+        for sublist in retrieve_bank_consents(test_client_paged, bank_id=6)
         for item in sublist
     ]
     assert len(consents) == 4
+
+
+GET_BY_ID_BANK_6_CONSENTS_1_PAGE = {
+    "results": [
+        {
+            "companyId": "CompanyID1234",
+            "permission": "READALLBANKDATA",
+            "consentId": "ConsentID12",
+            "bankId": 6,
+            "dateCreated": "2020-10-28T18:26:29.699Z",
+            "consentType": "Account",
+            "status": "AwaitingAuthorisation",
+        },
+    ],
+    "links": {},
+}
+
+
+@pytest.fixture()
+def test_client_company_id(requests_mock) -> ApiClient:
+    request_headers = {COMPANY_ID_HEADER: "CompanyID1234"}
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/banks/6/consents",
+        request_headers=request_headers,
+        json=GET_BY_ID_BANK_6_CONSENTS_1_PAGE,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_retrieve_bank_consents_by_company_id(
+    test_client_company_id: ApiClient, requests_mock
+):
+    company_id = "CompanyID1234"
+    consents: List[BankConsent] = [
+        item
+        for sublist in retrieve_bank_consents(
+            test_client_company_id, bank_id=6, company_id=company_id
+        )
+        for item in sublist
+    ]
+    assert len(consents) == 1
+    assert consents[0].company_id == company_id

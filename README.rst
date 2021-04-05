@@ -9,9 +9,9 @@ Fractal Python
    :alt: Supported Python Versions
    :target: https://pypi.python.org/pypi/fractal_python
 
-.. image:: https://coveralls.io/repos/github/pytest-dev/pytest-mock/badge.svg?branch=master
-     :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
-     :alt: Coverage
+.. image:: https://coveralls.io/repos/github/JeremyDTaylor/fractal_python/badge.svg?branch=master
+        :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
+        :alt: Coverage
 
 .. image:: https://img.shields.io/travis/JeremyDTaylor/fractal_python.svg
         :target: https://travis-ci.com/JeremyDTaylor/fractal_python

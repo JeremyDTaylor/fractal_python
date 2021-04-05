@@ -4,8 +4,14 @@ python:
 - 3.8
 - 3.7
 - 3.6
-install: pip install -U virtualenv tox-travis
-script: tox
+install:
+    - pip install -U virtualenv tox-travis
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then pip install coveralls -r example_project/requirements.txt; fi
+script:
+    - tox
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coverage run --source=fractal_python setup.py test; fi
+after_success:
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coveralls; fi
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel
