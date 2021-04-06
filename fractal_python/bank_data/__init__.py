@@ -1,6 +1,7 @@
 from fractal_python.bank_data.accounts import (
     retrieve_bank_accounts,
     retrieve_bank_balances,
+    retrieve_bank_transactions,
 )
 from fractal_python.bank_data.banks import (
     Bank,

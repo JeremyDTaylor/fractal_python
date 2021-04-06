@@ -15,6 +15,7 @@ from fractal_python.bank_data import (
     retrieve_bank_accounts,
     retrieve_bank_balances,
     retrieve_bank_consents,
+    retrieve_bank_transactions,
     retrieve_banks,
 )
 from tests.test_api_client import make_sandbox
@@ -362,7 +363,7 @@ def test_retrieve_all_bank_accounts_1_page(accounts_client):
     accounts = [
         item
         for sublist in retrieve_bank_accounts(
-            accounts_client, bank_id=6, company_id="CompanyID1234"
+            accounts_client, company_id="CompanyID1234", bank_id=6
         )
         for item in sublist
     ]
@@ -552,3 +553,157 @@ def test_retrieve_bank_6_balances(balances_client: ApiClient):
         for item in sublist
     ]
     assert len(accounts) == 6
+
+
+GET_BANK_TRANSACTIONS = {
+    "results": [
+        {
+            "id": "transactionId1357",
+            "bankId": 6,
+            "accountId": "accountId5555",
+            "bookingDate": "2020-10-16T00:00Z",
+            "valueDate": "2020-10-16T00:00Z",
+            "reference": "",
+            "transactionCode": "",
+            "transactionSubCode": "",
+            "proprietaryCode": "",
+            "proprietarySubCode": "",
+            "description": "Dividends October",
+            "amount": "2000.00",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "id": "merchantId579",
+                "name": "Dividends",
+                "categoryCode": "",
+                "addressLine": "",
+                "source": "BANK",
+            },
+            "category": {"id": "categoryID9876", "name": "Dividends", "source": "USER"},
+            "externalId": "",
+            "source": "MANUALIMPORT",
+        },
+        {
+            "id": "transactionId1357",
+            "bankId": 7,
+            "accountId": "accountId1234",
+            "bookingDate": "2020-10-16T00:00Z",
+            "valueDate": "2020-10-16T00:00Z",
+            "reference": "",
+            "transactionCode": "",
+            "transactionSubCode": "",
+            "proprietaryCode": "",
+            "proprietarySubCode": "",
+            "description": "HMRC",
+            "amount": "6200.00",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "id": "merchantId579",
+                "name": "HMRC",
+                "categoryCode": "",
+                "addressLine": "",
+                "source": "MODEL",
+            },
+            "category": {"id": "categoryID9876", "name": "Tax", "source": "MODEL"},
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+    ],
+    "links": {},
+}
+
+
+GET_BANK_TRANSACTIONS_PAGED = {
+    "results": [
+        {
+            "id": "transactionId13572",
+            "bankId": 6,
+            "accountId": "accountId5555",
+            "bookingDate": "2020-10-16T00:00Z",
+            "valueDate": "2020-10-16T00:00Z",
+            "reference": "",
+            "transactionCode": "",
+            "transactionSubCode": "",
+            "proprietaryCode": "",
+            "proprietarySubCode": "",
+            "description": "Dividends October",
+            "amount": "2000.00",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "id": "merchantId579",
+                "name": "Dividends",
+                "categoryCode": "",
+                "addressLine": "",
+                "source": "BANK",
+            },
+            "category": {"id": "categoryID9876", "name": "Dividends", "source": "USER"},
+            "externalId": "",
+            "source": "MANUALIMPORT",
+        },
+        {
+            "id": "transactionId13572",
+            "bankId": 7,
+            "accountId": "accountId1234",
+            "bookingDate": "2020-10-16T00:00Z",
+            "valueDate": "2020-10-16T00:00Z",
+            "reference": "",
+            "transactionCode": "",
+            "transactionSubCode": "",
+            "proprietaryCode": "",
+            "proprietarySubCode": "",
+            "description": "HMRC",
+            "amount": "6200.00",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "id": "merchantId579",
+                "name": "HMRC",
+                "categoryCode": "",
+                "addressLine": "",
+                "source": "MODEL",
+            },
+            "category": {"id": "categoryID9876", "name": "Tax", "source": "MODEL"},
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+    ],
+    "links": {"next": "mock://test/banking/v2/transactions?bankId=6&pageId=2"},
+}
+
+
+@pytest.fixture()
+def transactions_client(requests_mock) -> ApiClient:
+    request_headers = {
+        COMPANY_ID_HEADER: "CompanyID1234",
+        PARTNER_ID_HEADER: "sandbox-partner",
+    }
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/transactions?bankId=6",
+        json=GET_BANK_TRANSACTIONS_PAGED,
+        request_headers=request_headers,
+    )
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/transactions?bankId=6&pageId=2",
+        json=GET_BANK_TRANSACTIONS,
+        request_headers=request_headers,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_retrieve_bank_6_transactions(transactions_client: ApiClient):
+    accounts = [
+        item
+        for sublist in retrieve_bank_transactions(
+            client=transactions_client, bank_id=6, company_id="CompanyID1234"
+        )
+        for item in sublist
+    ]
+    assert len(accounts) == 4
