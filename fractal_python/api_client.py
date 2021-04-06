@@ -1,4 +1,5 @@
 import json
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Collection, Dict, Generator, Optional, Type
 
 import arrow
@@ -126,3 +127,11 @@ def get_paged_response(
         response = client.call_url(next_page, "GET", call_headers=headers)
         paged_response, next_page = _handle_get_response(response, cls)
         yield paged_response.results
+
+
+def arrow_or_none(value: Any):
+    return arrow.get(value) if value else None
+
+
+def money_amount(value: Any):
+    return Decimal(value).quantize(Decimal("0.01"), ROUND_HALF_UP) if value else None

@@ -6,8 +6,13 @@ import attr
 import deserialize
 from stringcase import camelcase
 
-from fractal_python.api_client import ApiClient, _call_api, get_paged_response
-from fractal_python.banking.api import BANKING_ENDPOINT, arrow_or_none
+from fractal_python.api_client import (
+    ApiClient,
+    _call_api,
+    arrow_or_none,
+    get_paged_response,
+)
+from fractal_python.banking.api import BANKING_ENDPOINT
 
 banks = BANKING_ENDPOINT + "/banks"
 consents = "consents"

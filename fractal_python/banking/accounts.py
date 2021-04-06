@@ -1,12 +1,17 @@
-from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Generator, List, Optional
+from decimal import Decimal
+from typing import Generator, List, Optional
 
 import arrow
 import attr
 import deserialize  # type: ignore
 
-from fractal_python.api_client import ApiClient, get_paged_response
-from fractal_python.banking.api import BANKING_ENDPOINT, arrow_or_none
+from fractal_python.api_client import (
+    ApiClient,
+    arrow_or_none,
+    get_paged_response,
+    money_amount,
+)
+from fractal_python.banking.api import BANKING_ENDPOINT
 
 accounts = BANKING_ENDPOINT + "/accounts"
 balances = BANKING_ENDPOINT + "/balances"
@@ -95,10 +100,6 @@ BALANCE_STATUS = (
 BALANCE_STATUS_RE = "|".join(BALANCE_STATUS)
 BALANCE_TYPES = ("DEBIT", "CREDIT")
 BALANCE_TYPES_RE = "|".join(BALANCE_TYPES)
-
-
-def money_amount(value: Any):
-    return Decimal(value).quantize(Decimal("0.01"), ROUND_HALF_UP) if value else None
 
 
 @attr.s(auto_attribs=True)
