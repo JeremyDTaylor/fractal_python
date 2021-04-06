@@ -6,7 +6,7 @@ import attr
 import deserialize  # type: ignore
 from stringcase import camelcase
 
-from fractal_python.api_client import ApiClient
+from fractal_python.api_client import ApiClient, get_paged_response
 
 endpoint = "/company/v2/companies"
 
@@ -77,27 +77,37 @@ class GetCompaniesResponse(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class Response(object):
+class CreateResponse(object):
     id: str
     message: str
     status: int
 
 
-def get_companies(client: ApiClient, query_params=None) -> Generator:
-    response = client.call_api(endpoint, "GET", query_params=query_params)
-    companies_response, next_page = _handle_get_companies_response(response)
-    yield companies_response.results
-    while next_page:
-        response = client.call_url(next_page, "GET")
-        companies_response, next_page = _handle_get_companies_response(response)
-        yield companies_response.results
+def get_companies(client: ApiClient, **kwargs) -> Generator[List[Company], None, None]:
+    r"""
+    Retrieves consents by bank id and company id
 
-
-def _handle_get_companies_response(response):
-    json_response = json.loads(response.text)
-    companies_response = deserialize.deserialize(GetCompaniesResponse, json_response)
-    next_page = companies_response.links.get("next", None)
-    return companies_response, next_page
+    :param client: the client to use for the api call
+    :param bank_id: the id of the bank to filter on
+    :param company_id: the id of the company to filter on
+    :rtype: Generator[List[Company], None, None]
+    """
+    url = f"{endpoint}"
+    query_params = {
+        camelcase(key): kwargs[key]
+        for key in (
+            "external_id",
+            "crn",
+        )
+        if key in kwargs
+    }
+    yield from get_paged_response(
+        client,
+        company_id=None,
+        query_params=query_params,
+        url=url,
+        cls=GetCompaniesResponse,
+    )
 
 
 def get_company(client: ApiClient, company_id: str) -> Company:
@@ -110,20 +120,20 @@ def get_company(client: ApiClient, company_id: str) -> Company:
 
 
 def get_companies_by_external_id(client: ApiClient, external_id: str) -> Generator:
-    query_params = dict(externalId=external_id)
-    return get_companies(client, query_params=query_params)
+    return get_companies(client, external_id=external_id)
 
 
 def get_companies_by_crn(client: ApiClient, crn: str) -> Generator:
-    query_params = dict(crn=crn)
-    return get_companies(client, query_params=query_params)
+    return get_companies(client, crn=crn)
 
 
-def create_company(client: ApiClient, companies: List[NewCompany]) -> List[Response]:
+def create_company(
+    client: ApiClient, companies: List[NewCompany]
+) -> List[CreateResponse]:
     body = json.dumps(companies, cls=NewCompanyEncoder)
     response = client.call_api(f"{endpoint}", "POST", body=body)
     json_response = json.loads(response.text)
-    return deserialize.deserialize(List[Response], json_response)
+    return deserialize.deserialize(List[CreateResponse], json_response)
 
 
 def delete_company(client: ApiClient, company_id: str):
