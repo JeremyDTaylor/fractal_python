@@ -13,6 +13,7 @@ from fractal_python.bank_data import (
     new_bank,
     put_bank_consent,
     retrieve_bank_accounts,
+    retrieve_bank_balances,
     retrieve_bank_consents,
     retrieve_banks,
 )
@@ -434,3 +435,120 @@ def test_retrieve_all_bank_accounts_2_pages(paged_accounts_client):
         for item in sublist
     ]
     assert len(accounts) == 4
+
+
+GET_BANK_BALANCES_RESPONSE = {
+    "results": [
+        {
+            "id": "balanceId1234",
+            "bankId": 6,
+            "accountId": "accountId1357",
+            "date": "2020-10-05T00:00Z",
+            "amount": "11477.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "INTERIMBOOKED",
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+        {
+            "id": "balanceId3456",
+            "bankId": 7,
+            "accountId": "accountId3579",
+            "date": "2020-10-04T00:00Z",
+            "amount": "15647.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "CLOSINGBOOKED",
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+        {
+            "id": "balanceId9876",
+            "bankId": 809,
+            "accountId": "accountId0087",
+            "date": "2020-10-03T00:00Z",
+            "amount": "1477.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "CLOSINGBOOKED",
+            "externalId": "",
+            "source": "MANUALIMPORT",
+        },
+    ],
+    "links": {},
+}
+
+GET_BANK_BALANCES_RESPONSE_PAGED = {
+    "results": [
+        {
+            "id": "balanceId12342",
+            "bankId": 6,
+            "accountId": "accountId13572",
+            "date": "2020-10-05T00:00Z",
+            "amount": "11477.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "INTERIMBOOKED",
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+        {
+            "id": "balanceId34562",
+            "bankId": 7,
+            "accountId": "accountId35792",
+            "date": "2020-10-04T00:00Z",
+            "amount": "15647.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "CLOSINGBOOKED",
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+        {
+            "id": "balanceId98762",
+            "bankId": 809,
+            "accountId": "accountId00872",
+            "date": "2020-10-03T00:00Z",
+            "amount": "1477.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "CLOSINGBOOKED",
+            "externalId": "",
+            "source": "MANUALIMPORT",
+        },
+    ],
+    "links": {"next": "mock://test/banking/v2/balances?bankId=6&pageId=2"},
+}
+
+
+@pytest.fixture()
+def balances_client(requests_mock) -> ApiClient:
+    request_headers = {
+        COMPANY_ID_HEADER: "CompanyID1234",
+        PARTNER_ID_HEADER: "sandbox-partner",
+    }
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/balances?bankId=6",
+        json=GET_BANK_BALANCES_RESPONSE_PAGED,
+        request_headers=request_headers,
+    )
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/balances?bankId=6&pageId=2",
+        json=GET_BANK_BALANCES_RESPONSE,
+        request_headers=request_headers,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_retrieve_bank_6_balances(balances_client: ApiClient):
+    accounts = [
+        item
+        for sublist in retrieve_bank_balances(
+            client=balances_client, bank_id=6, company_id="CompanyID1234"
+        )
+        for item in sublist
+    ]
+    assert len(accounts) == 6
