@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict
 
 import arrow
@@ -35,3 +36,27 @@ def _call_api(
 
 def arrow_or_none(value: Any):
     return arrow.get(value) if value else None
+
+
+def _handle_get_response(response, cls):
+    json_response = json.loads(response.text)
+    response = deserialize.deserialize(cls, json_response)
+    next_page = response.links.get("next", None)
+    return response, next_page
+
+
+def get_paged_response(client, company_id, query_params, url, cls):
+    response = _call_api(
+        client=client,
+        url=url,
+        method="GET",
+        query_params=query_params,
+        company_id=company_id,
+    )
+    headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
+    paged_response, next_page = _handle_get_response(response, cls)
+    yield paged_response.results
+    while next_page:
+        response = client.call_url(next_page, "GET", call_headers=headers)
+        paged_response, next_page = _handle_get_response(response, cls)
+        yield paged_response.results

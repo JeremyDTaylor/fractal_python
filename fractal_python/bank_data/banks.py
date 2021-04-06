@@ -7,7 +7,12 @@ import deserialize
 from stringcase import camelcase
 
 from fractal_python.api_client import ApiClient
-from fractal_python.bank_data.api import BANKING_ENDPOINT, _call_api, arrow_or_none
+from fractal_python.bank_data.api import (
+    BANKING_ENDPOINT,
+    _call_api,
+    arrow_or_none,
+    get_paged_response,
+)
 
 banks = BANKING_ENDPOINT + "/banks"
 consents = "consents"
@@ -43,21 +48,11 @@ class GetBanksResponse(object):
     results: List[Bank]
 
 
-def _handle_get_banks_response(response):
-    json_response = json.loads(response.text)
-    banks_response = deserialize.deserialize(GetBanksResponse, json_response)
-    next_page = banks_response.links.get("next", None)
-    return banks_response, next_page
-
-
-def retrieve_banks(client: ApiClient, query_params=None) -> Generator:
-    response = client.call_api(banks, "GET", query_params=query_params)
-    banks_response, next_page = _handle_get_banks_response(response)
-    yield banks_response.results
-    while next_page:
-        response = client.call_url(next_page, "GET")
-        banks_response, next_page = _handle_get_banks_response(response)
-        yield banks_response.results
+def retrieve_banks(
+    client: ApiClient, query_params=None
+) -> Generator[List[Bank], None, None]:
+    url = f"{banks}"
+    yield from get_paged_response(client, None, query_params, url, GetBanksResponse)
 
 
 @attr.s(auto_attribs=True)
@@ -111,13 +106,6 @@ class GetBankConsentsResponse(object):
     results: List[BankConsent]
 
 
-def _handle_retrieve_consents_response(response):
-    json_response = json.loads(response.text)
-    consents_response = deserialize.deserialize(GetBankConsentsResponse, json_response)
-    next_page = consents_response.links.get("next", None)
-    return consents_response, next_page
-
-
 def retrieve_bank_consents(
     client: ApiClient, bank_id: int, company_id: Optional[str] = None
 ) -> Generator[List[BankConsent], None, None]:
@@ -129,15 +117,10 @@ def retrieve_bank_consents(
     :param company_id: the id of the company to filter on
     :rtype: Generator[List[BankConsent], None, None]
     """
-    response = _call_api(
-        client, f"{banks}/{bank_id}/{consents}", "GET", company_id=company_id
+    url = f"{banks}/{bank_id}/{consents}"
+    yield from get_paged_response(
+        client, company_id, None, url, GetBankConsentsResponse
     )
-    consents_response, next_page = _handle_retrieve_consents_response(response)
-    yield consents_response.results
-    while next_page:
-        response = client.call_url(next_page, "GET")
-        consents_response, next_page = _handle_retrieve_consents_response(response)
-        yield consents_response.results
 
 
 def put_bank_consent(

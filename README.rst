@@ -16,8 +16,8 @@ Fractal Python
 .. image:: https://deepsource.io/gh/JeremyDTaylor/fractal_python.svg/?label=active+issues&show_trend=true
         :target: https://deepsource.io/gh/JeremyDTaylor/fractal_python/?ref=repository-badge
 
-.. image:: https://img.shields.io/travis/JeremyDTaylor/fractal_python.svg
-        :target: https://travis-ci.com/JeremyDTaylor/fractal_python
+.. image:: https://travis-ci.com/JeremyDTaylor/fractal_python.svg?branch=master
+    :target: https://travis-ci.com/JeremyDTaylor/fractal_python
 
 .. image:: https://readthedocs.org/projects/fractal-python/badge/?version=latest
         :target: https://fractal-python.readthedocs.io/en/latest/?version=latest

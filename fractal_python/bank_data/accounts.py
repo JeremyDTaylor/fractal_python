@@ -1,13 +1,16 @@
-import json
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Generator, List, Optional, Tuple
+from typing import Any, Generator, List, Optional
 
 import arrow
 import attr
 import deserialize  # type: ignore
 
-from fractal_python.api_client import COMPANY_ID_HEADER, ApiClient
-from fractal_python.bank_data.api import BANKING_ENDPOINT, _call_api, arrow_or_none
+from fractal_python.api_client import ApiClient
+from fractal_python.bank_data.api import (
+    BANKING_ENDPOINT,
+    arrow_or_none,
+    get_paged_response,
+)
 
 accounts = BANKING_ENDPOINT + "/accounts"
 balances = BANKING_ENDPOINT + "/balances"
@@ -54,29 +57,14 @@ class GetBankAccountsResponse(object):
     results: List[BankAccount]
 
 
-def _handle_get_accounts_response(response):
-    json_response = json.loads(response.text)
-    response = deserialize.deserialize(GetBankAccountsResponse, json_response)
-    next_page = response.links.get("next", None)
-    return response, next_page
-
-
 def retrieve_bank_accounts(
     client: ApiClient, bank_id: int, company_id: str
 ) -> Generator[List[BankAccount], None, None]:
-    response = _call_api(
-        client=client,
-        url=f"{accounts}",
-        method="GET",
-        query_params={"bankId": bank_id},
-        company_id=company_id,
+    url = f"{accounts}"
+    query_params = {"bankId": bank_id}
+    yield from get_paged_response(
+        client, company_id, query_params, url, GetBankAccountsResponse
     )
-    accounts_response, next_page = _handle_get_accounts_response(response)
-    yield accounts_response.results
-    while next_page:
-        response = client.call_url(next_page, "GET")
-        accounts_response, next_page = _handle_get_accounts_response(response)
-        yield accounts_response.results
 
 
 BALANCE_STATUS = (
@@ -139,27 +127,11 @@ class GetBankBalancesResponse(object):
     results: List[BankBalance]
 
 
-def _handle_get_balances_response(response) -> Tuple[GetBankBalancesResponse, str]:
-    json_response = json.loads(response.text)
-    balances_response = deserialize.deserialize(GetBankBalancesResponse, json_response)
-    next_page = balances_response.links.get("next", None)
-    return balances_response, next_page
-
-
 def retrieve_bank_balances(
     client: ApiClient, bank_id: int, company_id: str
 ) -> Generator[List[BankBalance], None, None]:
-    response = _call_api(
-        client=client,
-        url=f"{balances}",
-        method="GET",
-        query_params={"bankId": bank_id},
-        company_id=company_id,
+    url = f"{balances}"
+    query_params = {"bankId": bank_id}
+    yield from get_paged_response(
+        client, company_id, query_params, url, GetBankBalancesResponse
     )
-    headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
-    balances_response, next_page = _handle_get_balances_response(response)
-    yield balances_response.results
-    while next_page:
-        response = client.call_url(next_page, "GET", call_headers=headers)
-        balances_response, next_page = _handle_get_balances_response(response)
-        yield balances_response.results
