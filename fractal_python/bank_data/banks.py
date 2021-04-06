@@ -43,11 +43,10 @@ class GetBanksResponse(object):
     results: List[Bank]
 
 
-def retrieve_banks(
-    client: ApiClient, query_params=None
-) -> Generator[List[Bank], None, None]:
-    url = f"{banks}"
-    yield from get_paged_response(client, None, query_params, url, GetBanksResponse)
+def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
+    yield from get_paged_response(
+        client=client, company_id=None, params=None, url=banks, cls=GetBanksResponse
+    )
 
 
 @attr.s(auto_attribs=True)
@@ -114,7 +113,11 @@ def retrieve_bank_consents(
     """
     url = f"{banks}/{bank_id}/{consents}"
     yield from get_paged_response(
-        client, company_id, None, url, GetBankConsentsResponse
+        client=client,
+        company_id=company_id,
+        params=[],
+        url=url,
+        cls=GetBankConsentsResponse,
     )
 
 

@@ -4,7 +4,6 @@ from typing import Any, Generator, List, Optional
 import arrow
 import attr
 import deserialize  # type: ignore
-from stringcase import camelcase
 
 from fractal_python.api_client import ApiClient, get_paged_response
 from fractal_python.bank_data.api import BANKING_ENDPOINT, arrow_or_none
@@ -58,7 +57,7 @@ class GetBankAccountsResponse(object):
 def retrieve_bank_accounts(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankAccount], None, None]:
-    """
+    r"""
     Retrieves pages of all connected bank accounts for a business.
     Can be filtered by providing a bank_id.
 
@@ -71,12 +70,13 @@ def retrieve_bank_accounts(
     :return: :class:`Generator <Generator>` object
     :rtype: Generator[List[BankAccount], None, None]
     """
-    url = f"{accounts}"
-    query_params = {
-        camelcase(key): kwargs[key] for key in ("bank_id",) if key in kwargs
-    }
     yield from get_paged_response(
-        client, company_id, query_params, url, GetBankAccountsResponse
+        client=client,
+        company_id=company_id,
+        params=("bank_id",),
+        url=accounts,
+        cls=GetBankAccountsResponse,
+        **kwargs
     )
 
 
@@ -143,7 +143,7 @@ class GetBankBalancesResponse(object):
 def retrieve_bank_balances(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankBalance], None, None]:
-    """
+    r"""
     Pages of cash balances are returned for all the bank accounts that have been
     connected to the company. Balances can be filtered by bank_id and account_id
 
@@ -159,19 +159,18 @@ def retrieve_bank_balances(
     :return: :class:`Generator <Generator>` object
     :rtype: Generator[List[BankBalance], None, None]
     """
-    url = f"{balances}"
-    query_params = {
-        camelcase(key): kwargs[key]
-        for key in (
+    yield from get_paged_response(
+        client=client,
+        company_id=company_id,
+        params=[
             "bank_id",
             "account_id",
             "from",
             "to",
-        )
-        if key in kwargs
-    }
-    yield from get_paged_response(
-        client, company_id, query_params, url, GetBankBalancesResponse
+        ],
+        url=balances,
+        cls=GetBankBalancesResponse,
+        **kwargs
     )
 
 
@@ -279,7 +278,7 @@ class GetBankTransactionResponse(object):
 def retrieve_bank_transactions(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankTransaction], None, None]:
-    """
+    r"""
     Pages of bank transactions are returned for all the bank accounts that have been
     connected to the company.
     Transactions can be filtered by bank_id, account_id, from and to
@@ -296,17 +295,16 @@ def retrieve_bank_transactions(
     :return: :class:`Generator <Generator>` object
     :rtype: Generator[List[BankTransaction], None, None]
     """
-    url = f"{transactions}"
-    query_params = {
-        camelcase(key): kwargs[key]
-        for key in (
+    yield from get_paged_response(
+        client=client,
+        company_id=company_id,
+        params=[
             "bank_id",
             "account_id",
             "from",
             "to",
-        )
-        if key in kwargs
-    }
-    yield from get_paged_response(
-        client, company_id, query_params, url, GetBankTransactionResponse
+        ],
+        url=transactions,
+        cls=GetBankTransactionResponse,
+        **kwargs
     )

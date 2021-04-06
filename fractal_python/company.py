@@ -92,21 +92,16 @@ def get_companies(client: ApiClient, **kwargs) -> Generator[List[Company], None,
     :param company_id: the id of the company to filter on
     :rtype: Generator[List[Company], None, None]
     """
-    url = f"{endpoint}"
-    query_params = {
-        camelcase(key): kwargs[key]
-        for key in (
+    yield from get_paged_response(
+        client=client,
+        company_id=None,
+        params=[
             "external_id",
             "crn",
-        )
-        if key in kwargs
-    }
-    yield from get_paged_response(
-        client,
-        company_id=None,
-        query_params=query_params,
-        url=url,
+        ],
+        url=f"{endpoint}",
         cls=GetCompaniesResponse,
+        **kwargs,
     )
 
 

@@ -1,9 +1,10 @@
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Collection, Dict, Generator, Optional, Type
 
 import arrow
 import deserialize
 import requests
+from stringcase import camelcase
 
 SANDBOX = "https://sandbox.askfractal.com"
 LIVE = "https://api.askfractal.com"
@@ -98,7 +99,19 @@ def _handle_get_response(response, cls):
     return response, next_page
 
 
-def get_paged_response(client, company_id, query_params, url, cls):
+def get_paged_response(
+    client: ApiClient,
+    company_id: Optional[str],
+    params: Optional[Collection[str]],
+    url: str,
+    cls: Type,
+    **kwargs,
+) -> Generator:
+    query_params = (
+        {camelcase(key): kwargs[key] for key in params if key in kwargs}
+        if params
+        else {}
+    )
     response = _call_api(
         client=client,
         url=url,
