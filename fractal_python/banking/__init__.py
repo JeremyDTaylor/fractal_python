@@ -16,3 +16,4 @@ from fractal_python.banking.banks import (
     retrieve_banks,
 )
 from fractal_python.banking.categories import retrieve_categories
+from fractal_python.banking.merchants import retrieve_merchants
