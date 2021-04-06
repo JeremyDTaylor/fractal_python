@@ -6,7 +6,7 @@ import attr
 import deserialize  # type: ignore
 
 from fractal_python.api_client import ApiClient, get_paged_response
-from fractal_python.bank_data.api import BANKING_ENDPOINT, arrow_or_none
+from fractal_python.banking.api import BANKING_ENDPOINT, arrow_or_none
 
 accounts = BANKING_ENDPOINT + "/accounts"
 balances = BANKING_ENDPOINT + "/balances"

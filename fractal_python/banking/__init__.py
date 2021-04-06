@@ -1,9 +1,9 @@
-from fractal_python.bank_data.accounts import (
+from fractal_python.banking.accounts import (
     retrieve_bank_accounts,
     retrieve_bank_balances,
     retrieve_bank_transactions,
 )
-from fractal_python.bank_data.banks import (
+from fractal_python.banking.banks import (
     Bank,
     BankConsent,
     BankEncoder,
@@ -15,3 +15,4 @@ from fractal_python.bank_data.banks import (
     retrieve_bank_consents,
     retrieve_banks,
 )
+from fractal_python.banking.categories import retrieve_categories

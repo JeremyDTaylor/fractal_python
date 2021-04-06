@@ -4,7 +4,7 @@ import deserialize  # type: ignore
 import pytest
 
 from fractal_python.api_client import COMPANY_ID_HEADER, PARTNER_ID_HEADER, ApiClient
-from fractal_python.bank_data import (
+from fractal_python.banking import (
     Bank,
     BankConsent,
     BankEncoder,
