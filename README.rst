@@ -13,6 +13,9 @@ Fractal Python
         :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
         :alt: Coverage
 
+.. image:: https://codecov.io/gh/JeremyDTaylor/fractal_python/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/JeremyDTaylor/fractal_python
+
 .. image:: https://deepsource.io/gh/JeremyDTaylor/fractal_python.svg/?label=active+issues&show_trend=true
         :target: https://deepsource.io/gh/JeremyDTaylor/fractal_python/?ref=repository-badge
 
