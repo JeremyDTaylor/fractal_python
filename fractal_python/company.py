@@ -59,7 +59,7 @@ class CompanyEncoder(json.JSONEncoder):
         arrow_attrs = [
             x
             for x in dir(o)
-            if type(getattr(o, x)) == arrow.Arrow and x[:2] != "__" and x[-2:] != "__"
+            if type(getattr(o, x)) is arrow.Arrow and x[:2] != "__" and x[-2:] != "__"
         ]
         company = {
             camelcase(k): v for k, v in o.__dict__.items() if v and k not in arrow_attrs
