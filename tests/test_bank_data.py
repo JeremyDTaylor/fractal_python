@@ -1,10 +1,11 @@
+# -*- coding: utf-8 -*-
 from typing import Any, Dict, List
 
 import deserialize  # type: ignore
 import pytest
 
 from fractal_python.api_client import COMPANY_ID_HEADER, PARTNER_ID_HEADER, ApiClient
-from fractal_python.bank_data import (
+from fractal_python.banking import (
     Bank,
     BankConsent,
     BankEncoder,
@@ -13,7 +14,9 @@ from fractal_python.bank_data import (
     new_bank,
     put_bank_consent,
     retrieve_bank_accounts,
+    retrieve_bank_balances,
     retrieve_bank_consents,
+    retrieve_bank_transactions,
     retrieve_banks,
 )
 from tests.test_api_client import make_sandbox
@@ -282,6 +285,54 @@ def test_put_bank_consent(put_consent_client):
     )
 
 
+def test_put_bank_consent_400(put_consent_client, requests_mock):
+    requests_mock.register_uri(
+        "PUT", "/banking/v2/banks/6/consents/Consent400", status_code=400
+    )
+    with pytest.raises(AssertionError):
+        put_bank_consent(
+            put_consent_client,
+            code="code",
+            id_token="id_token",
+            state="state",
+            bank_id=6,
+            consent_id="Consent400",
+            company_id="CompanyID1234",
+        )
+
+
+def test_put_bank_consent_404(put_consent_client, requests_mock):
+    requests_mock.register_uri(
+        "PUT", "/banking/v2/banks/6/consents/Consent404", status_code=404
+    )
+    with pytest.raises(AssertionError):
+        put_bank_consent(
+            put_consent_client,
+            code="code",
+            id_token="id_token",
+            state="state",
+            bank_id=6,
+            consent_id="Consent404",
+            company_id="CompanyID1234",
+        )
+
+
+def test_put_bank_consent_502(put_consent_client, requests_mock):
+    requests_mock.register_uri(
+        "PUT", "/banking/v2/banks/6/consents/Consent502", status_code=502
+    )
+    with pytest.raises(AssertionError):
+        put_bank_consent(
+            put_consent_client,
+            code="code",
+            id_token="id_token",
+            state="state",
+            bank_id=6,
+            consent_id="Consent502",
+            company_id="CompanyID1234",
+        )
+
+
 @pytest.fixture()
 def delete_consent_client(requests_mock) -> ApiClient:
     request_headers = {COMPANY_ID_HEADER: "CompanyID1234"}
@@ -301,6 +352,19 @@ def test_delete_bank_consent(delete_consent_client):
         consent_id="ConsentID12",
         company_id="CompanyID1234",
     )
+
+
+def test_delete_bank_consent_404(delete_consent_client, requests_mock):
+    requests_mock.register_uri(
+        "DELETE", "/banking/v2/banks/6/consents/Consent404", status_code=404
+    )
+    with pytest.raises(AssertionError):
+        delete_bank_consent(
+            delete_consent_client,
+            bank_id=6,
+            consent_id="Consent404",
+            company_id="CompanyID1234",
+        )
 
 
 GET_BANK_ACCOUNTS = {
@@ -361,7 +425,7 @@ def test_retrieve_all_bank_accounts_1_page(accounts_client):
     accounts = [
         item
         for sublist in retrieve_bank_accounts(
-            accounts_client, bank_id=6, company_id="CompanyID1234"
+            accounts_client, company_id="CompanyID1234", bank_id=6
         )
         for item in sublist
     ]
@@ -430,6 +494,277 @@ def test_retrieve_all_bank_accounts_2_pages(paged_accounts_client):
         item
         for sublist in retrieve_bank_accounts(
             paged_accounts_client, bank_id=6, company_id="CompanyID1234"
+        )
+        for item in sublist
+    ]
+    assert len(accounts) == 4
+
+
+GET_BANK_BALANCES_RESPONSE = {
+    "results": [
+        {
+            "id": "balanceId1234",
+            "bankId": 6,
+            "accountId": "accountId1357",
+            "date": "2020-10-05T00:00Z",
+            "amount": "11477.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "INTERIMBOOKED",
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+        {
+            "id": "balanceId3456",
+            "bankId": 7,
+            "accountId": "accountId3579",
+            "date": "2020-10-04T00:00Z",
+            "amount": "15647.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "CLOSINGBOOKED",
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+        {
+            "id": "balanceId9876",
+            "bankId": 809,
+            "accountId": "accountId0087",
+            "date": "2020-10-03T00:00Z",
+            "amount": "1477.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "CLOSINGBOOKED",
+            "externalId": "",
+            "source": "MANUALIMPORT",
+        },
+    ],
+    "links": {},
+}
+
+GET_BANK_BALANCES_RESPONSE_PAGED = {
+    "results": [
+        {
+            "id": "balanceId12342",
+            "bankId": 6,
+            "accountId": "accountId13572",
+            "date": "2020-10-05T00:00Z",
+            "amount": "11477.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "INTERIMBOOKED",
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+        {
+            "id": "balanceId34562",
+            "bankId": 7,
+            "accountId": "accountId35792",
+            "date": "2020-10-04T00:00Z",
+            "amount": "15647.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "CLOSINGBOOKED",
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+        {
+            "id": "balanceId98762",
+            "bankId": 809,
+            "accountId": "accountId00872",
+            "date": "2020-10-03T00:00Z",
+            "amount": "1477.35",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "CLOSINGBOOKED",
+            "externalId": "",
+            "source": "MANUALIMPORT",
+        },
+    ],
+    "links": {"next": "mock://test/banking/v2/balances?bankId=6&pageId=2"},
+}
+
+
+@pytest.fixture()
+def balances_client(requests_mock) -> ApiClient:
+    request_headers = {
+        COMPANY_ID_HEADER: "CompanyID1234",
+        PARTNER_ID_HEADER: "sandbox-partner",
+    }
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/balances?bankId=6",
+        json=GET_BANK_BALANCES_RESPONSE_PAGED,
+        request_headers=request_headers,
+    )
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/balances?bankId=6&pageId=2",
+        json=GET_BANK_BALANCES_RESPONSE,
+        request_headers=request_headers,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_retrieve_bank_6_balances(balances_client: ApiClient):
+    accounts = [
+        item
+        for sublist in retrieve_bank_balances(
+            client=balances_client, bank_id=6, company_id="CompanyID1234"
+        )
+        for item in sublist
+    ]
+    assert len(accounts) == 6
+
+
+GET_BANK_TRANSACTIONS = {
+    "results": [
+        {
+            "id": "transactionId1357",
+            "bankId": 6,
+            "accountId": "accountId5555",
+            "bookingDate": "2020-10-16T00:00Z",
+            "valueDate": "2020-10-16T00:00Z",
+            "reference": "",
+            "transactionCode": "",
+            "transactionSubCode": "",
+            "proprietaryCode": "",
+            "proprietarySubCode": "",
+            "description": "Dividends October",
+            "amount": "2000.00",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "id": "merchantId579",
+                "name": "Dividends",
+                "categoryCode": "",
+                "addressLine": "",
+                "source": "BANK",
+            },
+            "category": {"id": "categoryID9876", "name": "Dividends", "source": "USER"},
+            "externalId": "",
+            "source": "MANUALIMPORT",
+        },
+        {
+            "id": "transactionId1357",
+            "bankId": 7,
+            "accountId": "accountId1234",
+            "bookingDate": "2020-10-16T00:00Z",
+            "valueDate": "2020-10-16T00:00Z",
+            "reference": "",
+            "transactionCode": "",
+            "transactionSubCode": "",
+            "proprietaryCode": "",
+            "proprietarySubCode": "",
+            "description": "HMRC",
+            "amount": "6200.00",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "id": "merchantId579",
+                "name": "HMRC",
+                "categoryCode": "",
+                "addressLine": "",
+                "source": "MODEL",
+            },
+            "category": {"id": "categoryID9876", "name": "Tax", "source": "MODEL"},
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+    ],
+    "links": {},
+}
+
+
+GET_BANK_TRANSACTIONS_PAGED = {
+    "results": [
+        {
+            "id": "transactionId13572",
+            "bankId": 6,
+            "accountId": "accountId5555",
+            "bookingDate": "2020-10-16T00:00Z",
+            "valueDate": "2020-10-16T00:00Z",
+            "reference": "",
+            "transactionCode": "",
+            "transactionSubCode": "",
+            "proprietaryCode": "",
+            "proprietarySubCode": "",
+            "description": "Dividends October",
+            "amount": "2000.00",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "id": "merchantId579",
+                "name": "Dividends",
+                "categoryCode": "",
+                "addressLine": "",
+                "source": "BANK",
+            },
+            "category": {"id": "categoryID9876", "name": "Dividends", "source": "USER"},
+            "externalId": "",
+            "source": "MANUALIMPORT",
+        },
+        {
+            "id": "transactionId13572",
+            "bankId": 7,
+            "accountId": "accountId1234",
+            "bookingDate": "2020-10-16T00:00Z",
+            "valueDate": "2020-10-16T00:00Z",
+            "reference": "",
+            "transactionCode": "",
+            "transactionSubCode": "",
+            "proprietaryCode": "",
+            "proprietarySubCode": "",
+            "description": "HMRC",
+            "amount": "6200.00",
+            "currency": "GBP",
+            "type": "CREDIT",
+            "status": "BOOKED",
+            "merchant": {
+                "id": "merchantId579",
+                "name": "HMRC",
+                "categoryCode": "",
+                "addressLine": "",
+                "source": "MODEL",
+            },
+            "category": {"id": "categoryID9876", "name": "Tax", "source": "MODEL"},
+            "externalId": "",
+            "source": "OPENBANKING",
+        },
+    ],
+    "links": {"next": "mock://test/banking/v2/transactions?bankId=6&pageId=2"},
+}
+
+
+@pytest.fixture()
+def transactions_client(requests_mock) -> ApiClient:
+    request_headers = {
+        COMPANY_ID_HEADER: "CompanyID1234",
+        PARTNER_ID_HEADER: "sandbox-partner",
+    }
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/transactions?bankId=6",
+        json=GET_BANK_TRANSACTIONS_PAGED,
+        request_headers=request_headers,
+    )
+    requests_mock.register_uri(
+        "GET",
+        "/banking/v2/transactions?bankId=6&pageId=2",
+        json=GET_BANK_TRANSACTIONS,
+        request_headers=request_headers,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_retrieve_bank_6_transactions(transactions_client: ApiClient):
+    accounts = [
+        item
+        for sublist in retrieve_bank_transactions(
+            client=transactions_client, bank_id=6, company_id="CompanyID1234"
         )
         for item in sublist
     ]

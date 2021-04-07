@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import arrow
 import deserialize  # type: ignore
 import pytest
@@ -294,6 +295,12 @@ def test_delete_company_404(test_client: ApiClient, requests_mock):
     requests_mock.register_uri("DELETE", "/company/v2/companies/1", status_code=404)
     with pytest.raises(AssertionError):
         delete_company(test_client, company_id="1")
+
+
+def test_delete_company_no_company_id(test_client: ApiClient, requests_mock):
+    requests_mock.register_uri("DELETE", "/company/v2/companies/1", status_code=404)
+    with pytest.raises(AssertionError):
+        delete_company(test_client, company_id=" ")
 
 
 @pytest.fixture()

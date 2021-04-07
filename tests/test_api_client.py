@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 
 import arrow
@@ -40,7 +41,7 @@ def test_live(live):
     assert "live-partner" in live.headers.values()
 
 
-def test_authorise(requests_mock, freezer, sandbox):
+def test_authorise(requests_mock, freezer, sandbox):  # skipcq: PYL-W0613
     requests_mock.register_uri("POST", "/token", text=json.dumps(TOKEN_RESPONSE))
     sandbox.expires_at = arrow.now().shift(seconds=-1801)
     sandbox.authorise()

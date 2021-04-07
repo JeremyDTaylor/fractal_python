@@ -13,11 +13,14 @@ Fractal Python
         :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
         :alt: Coverage
 
+.. image:: https://codecov.io/gh/JeremyDTaylor/fractal_python/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/JeremyDTaylor/fractal_python
+
 .. image:: https://deepsource.io/gh/JeremyDTaylor/fractal_python.svg/?label=active+issues&show_trend=true
         :target: https://deepsource.io/gh/JeremyDTaylor/fractal_python/?ref=repository-badge
 
-.. image:: https://img.shields.io/travis/JeremyDTaylor/fractal_python.svg
-        :target: https://travis-ci.com/JeremyDTaylor/fractal_python
+.. image:: https://travis-ci.com/JeremyDTaylor/fractal_python.svg?branch=master
+    :target: https://travis-ci.com/JeremyDTaylor/fractal_python
 
 .. image:: https://readthedocs.org/projects/fractal-python/badge/?version=latest
         :target: https://fractal-python.readthedocs.io/en/latest/?version=latest
@@ -34,6 +37,10 @@ Fractal Python
 .. image:: http://www.mypy-lang.org/static/mypy_badge.svg
      :target: http://mypy-lang.org/
      :alt: Checked with mypy
+
+.. image:: https://img.shields.io/badge/security-bandit-yellow.svg
+    :target: https://github.com/PyCQA/bandit
+    :alt: Security Status
 
 .. image:: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/shield.svg
      :target: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/
