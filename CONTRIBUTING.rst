@@ -1,4 +1,4 @@
-.. highlight:: shell
+.. highlights:: shell
 
 ============
 Contributing
@@ -57,26 +57,30 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `fractal_python` for local development.
+Ready to contribute? Here's how to set up `fractal_python` for local development:
 
-1. Fork the `fractal_python` repo on GitHub.
-2. Clone your fork locally::
+#. Fork the `fractal_python` repo on GitHub.
+#. Clone your fork locally::
 
     $ git clone git@github.com:your_name_here/fractal_python.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+#. Install pre-commit into your git hooks. `pre-commit <https://pre-commit.com>`_ will now run on every commit::
+
+    $ pre-commit install
+
+#. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
     $ mkvirtualenv fractal_python
     $ cd fractal_python/
     $ python setup.py develop
 
-4. Create a branch for local development::
+#. Create a branch for local development::
 
     $ git checkout -b name-of-your-bugfix-or-feature
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the
+#. When you're done making changes, check that your changes pass flake8 and the
    tests, including testing other Python versions with tox::
 
     $ flake8 fractal_python tests
@@ -85,13 +89,13 @@ Ready to contribute? Here's how to set up `fractal_python` for local development
 
    To get flake8 and tox, just pip install them into your virtualenv.
 
-6. Commit your changes and push your branch to GitHub::
+#. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-7. Submit a pull request through the GitHub website.
+#. Submit a pull request through the GitHub website.
 
 Pull Request Guidelines
 -----------------------
@@ -102,17 +106,30 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.6, 3.7 and 3.8, and for PyPy. Check
+3. The pull request should work for Python 3.6, 3.7, 3.8, and 3.9. Check
    https://travis-ci.com/JeremyDTaylor/fractal_python/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips
 ----
 
+Install `pyenv <https://github.com/pyenv/pyenv#installation>`_ to run the tox tests locally::
+
+    $ pyenv local 3.9.2 3.8.8 3.7.10 3.6.13
+    $ tox
+
 To run a subset of tests::
 
-$ pytest tests.test_fractal_python
+    $ pytest tests.banking
 
+To check the code coverage::
+
+    $ coverage run --source=fractal_python setup.py test
+    $ coverage report -m
+
+Run black, isort, mypy etc. on everything::
+
+    $ pre-commit run --all-files
 
 Deploying
 ---------

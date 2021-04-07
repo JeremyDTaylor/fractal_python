@@ -69,12 +69,13 @@ def retrieve_bank_accounts(
     Can be filtered by providing a bank_id.
 
     :param client: Live or Sandbox API Client
-    :type client: :class:`APIClient <Response>` object
+    :type client: ApiClient
     :param company_id: Identifier of the Company
-    :type company_id: String
-    :param bank_id: (optional) Unique identifier for the bank
-    :type bank_id: Integer
-    :return: :class:`Generator <Generator>` object
+    :param **kwargs: See below
+
+    :Keyword Arguments:
+        *bank_id* (('int'')) Unique identifier for the bank
+    :yield: Pages of BankAccounts
     :rtype: Generator[List[BankAccount], None, None]
     """
     yield from get_paged_response(
@@ -148,18 +149,22 @@ def retrieve_bank_balances(
 ) -> Generator[List[BankBalance], None, None]:
     r"""
     Pages of cash balances are returned for all the bank accounts that have been
-    connected to the company. Balances can be filtered by bank_id and account_id
+    connected to the company.
+
+    Balances can be filtered by bank_id and account_id.
 
     :param client: Live or Sandbox API Client
-    :type client: :class:`APIClient <Response>` object
+    :type client: ApiClient
     :param company_id: Identifier of the Company
-    :type company_id: String
-    :param bank_id: (optional) Unique identifier for the bank
-    :type bank_id: Integer
-    :param account_id: (optional) String Unique identifier for the bank account
-    :param from: (optional) datetime Returns balances posted on or after from date
-    :param to: (optional) datetime Returns balances posted on or before to date
-    :return: :class:`Generator <Generator>` object
+    :type company_id: str
+    :param **kwargs: See below
+
+    :Keyword Arguments:
+        *bank_id* (('int'')) Unique identifier for the bank
+        *account_id* (('str''))  String Unique identifier for the bank account
+        *from* filter transactions posted on or after from date
+        *to* filter transactions posted on or before to date
+    :yield: Pages of BankBalances
     :rtype: Generator[List[BankBalance], None, None]
     """
     yield from get_paged_response(
@@ -284,18 +289,21 @@ def retrieve_bank_transactions(
     r"""
     Pages of bank transactions are returned for all the bank accounts that have been
     connected to the company.
-    Transactions can be filtered by bank_id, account_id, from and to
+
+    Transactions can be filtered by bank_id, account_id, from and to.
 
     :param client: Live or Sandbox API Client
-    :type client: :class:`APIClient <Response>` object
+    :type client: ApiClient
     :param company_id: Identifier of the Company
-    :type company_id: String
-    :param bank_id: (optional) Unique identifier for the bank
-    :type bank_id: Integer
-    :param account_id: (optional) String Unique identifier for the bank account
-    :param from: (optional) datetime Returns transactions posted on or after from date
-    :param to: (optional) datetime Returns transactions posted on or before to date
-    :return: :class:`Generator <Generator>` object
+    :type company_id: str
+    :param **kwargs: See below
+
+    :Keyword Arguments:
+        *bank_id* (('int'')) Unique identifier for the bank
+        *account_id* (('str''))  String Unique identifier for the bank account
+        *from* filter transactions posted on or after from date
+        *to* filter transactions posted on or before to date
+    :yield: Pages of BankTransactions
     :rtype: Generator[List[BankTransaction], None, None]
     """
     yield from get_paged_response(

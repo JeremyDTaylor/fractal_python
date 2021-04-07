@@ -91,8 +91,13 @@ def get_companies(client: ApiClient, **kwargs) -> Generator[List[Company], None,
     Retrieves consents by bank id and company id
 
     :param client: the client to use for the api call
-    :param bank_id: the id of the bank to filter on
-    :param company_id: the id of the company to filter on
+    :type client: ApiClient
+    :param **kwargs: See below
+
+    :Keyword Arguments:
+        *external_id* (('str'')) Unique identifier for the bank account
+        *crn* (('str')) Unique identifier for the forecast
+    :yield: pages of Companies objects
     :rtype: Generator[List[Company], None, None]
     """
     yield from get_paged_response(

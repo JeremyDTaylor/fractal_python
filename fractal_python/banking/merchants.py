@@ -31,9 +31,9 @@ def retrieve_merchants(client: ApiClient) -> Generator[List[Merchant], None, Non
     Merchant id and the merchant name are returned in the response.
 
     :param client: Live or Sandbox API Client
-    :type client: :class:`APIClient <Response>` object
-    :return: :class:`Generator <Generator>` object
-    :rtype: Generator[List[Category], None, None]
+    :type client: ApiClient
+    :yield: Pages of Merchants
+    :rtype: Generator[List[Merchant], None, None]
     """
     yield from get_paged_response(
         client=client,

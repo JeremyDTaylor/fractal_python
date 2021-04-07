@@ -68,13 +68,15 @@ def get_forecasts(
     r"""Get all forecasts for the company.
 
     :param client: Live or Sandbox API Client
-    :type client: :class:`APIClient <Response>` object
+    :type client: ApiClient
     :param company_id: Identifier of the Company
-    :type company_id: String
-    :param bank_id: (optional) Unique identifier for the bank
-    :type bank_id: Integer
-    :param account_id: (optional) String Unique identifier for the bank account
-    :return: :class:`Generator <Generator>` object
+    :type company_id: str
+    :param **kwargs: See below
+
+    :Keyword Arguments:
+        *bank_id* (('int'')) Unique identifier for the bank
+        *account_id* (('str'')) Unique identifier for the bank account
+    :yield: Pages of Forecast objects
     :rtype: Generator[List[Forecast], None, None]
     """
     yield from get_paged_response(
@@ -129,19 +131,21 @@ def get_forecasted_transactions(
     r"""
     Get all forecasted transactions linked to the provided forecast id.
 
+    Can be filtered by bank_id, account_id, forecast_od, from and to.
+
     :param client: Live or Sandbox API Client
-    :type client: :class:`APIClient <Response>` object
+    :type client: ApiClient
     :param company_id: Identifier of the Company
-    :type company_id: String
-    :param bank_id: (optional) Unique identifier for the bank
-    :type bank_id: Integer
-    :param account_id: (optional) String Unique identifier for the bank account
-    :type account_id: String
-    :param forecast_id: (optional) String Unique identifier for the forecast
-    :type forecast_id: String
-    :param from: (optional) datetime Returns transactions posted on or after from date
-    :param to: (optional) datetime Returns transactions posted on or before to date
-    :return: :class:`Generator <Generator>` object
+    :type company_id: str
+    :param **kwargs: See below
+
+    :Keyword Arguments:
+        *bank_id* (('int'')) Unique identifier for the bank
+        *account_id* (('str'')) Unique identifier for the bank account
+        *forecast_id* (('str')) Unique identifier for the forecast
+        *from* filter transactions posted on or after from date
+        *to* filter transactions posted on or before to date
+    :yield: Pages of ForecastedBankTransaction objects
     :rtype: Generator[List[ForecastedTransaction], None, None]
     """
     yield from get_paged_response(
@@ -193,19 +197,21 @@ def get_forecasted_balances(
     r"""
     Get all forecasted balances linked to the provided forecast id.
 
+    Can filter on bank_id, account_id, forecast_id, from and to
+
     :param client: Live or Sandbox API Client
-    :type client: :class:`APIClient <Response>` object
+    :type client: ApiClient
     :param company_id: Identifier of the Company
-    :type company_id: String
-    :param bank_id: (optional) Unique identifier for the bank
-    :type bank_id: Integer
-    :param account_id: (optional) String Unique identifier for the bank account
-    :type account_id: String
-    :param forecast_id: (optional) String Unique identifier for the forecast
-    :type forecast_id: String
-    :param from: (optional) datetime Returns transactions posted on or after from date
-    :param to: (optional) datetime Returns transactions posted on or before to date
-    :return: :class:`Generator <Generator>` object
+    :type company_id: str
+    :param **kwargs: See below
+
+    :Keyword Arguments:
+        *bank_id* (('int'')) Unique identifier for the bank
+        *account_id* (('str'')) Unique identifier for the bank account
+        *forecast_id* (('str')) Unique identifier for the forecast
+        *from* filter transactions posted on or after from date
+        *to* filter transactions posted on or before to date
+    :yield: pages of ForecastedBalance objects
     :rtype: Generator[List[ForecastedBalance], None, None]
     """
     yield from get_paged_response(

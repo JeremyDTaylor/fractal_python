@@ -113,8 +113,12 @@ def retrieve_bank_consents(
     Retrieves consents by bank id and company id
 
     :param client: the client to use for the api call
+    :type client: ApiClient
     :param bank_id: the id of the bank to filter on
-    :param company_id: the id of the company to filter on
+    :type bank_id: int
+    :param company_id: the id of the company to filter on, defaults to None
+    :type company_id: str, optional
+    :yield: Page of Bank Consents
     :rtype: Generator[List[BankConsent], None, None]
     """
     url = f"{banks}/{bank_id}/{consents}"
@@ -140,12 +144,20 @@ def put_bank_consent(
     Call this after user has been redirected back from the bank
 
     :param client: the client to use for the api call
+    :type client: ApiClient
     :param code: to be exchanged for access token with the bank
+    :type code: str
     :param id_token: base64 encoded JSON for verifying
+    :type id_token: str
     :param state: base64b encoded JSON to persist the state
+    :type state: str
     :param bank_id: the id of the bank to filter on
+    :type bank_id: int
     :param consent_id: id returned from create_bank_consent
+    :type consent_id: str
     :param company_id:  the id of the company
+    :type company_id: str
+    :raises AssertionError: When response code not 204
     """
     payload = {"code": code, "id_token": id_token, "state": state}
     response = _call_api(
@@ -169,9 +181,15 @@ def delete_bank_consent(
     Call this after user has been redirected back from the bank
 
     :param client: the client to use for the api call
+    :type client: ApiClient
     :param bank_id: the id of the bank to filter on
+    :type bank_id: int
     :param consent_id: id returned from create_bank_consent
-    :param company_id:  the id of the company"""
+    :type consent_id: str
+    :param company_id:  the id of the company
+    :type company_id: str
+    :raises AssertionError: When response code not 202
+    """
     response = _call_api(
         client,
         f"{banks}/{bank_id}/{consents}/{consent_id}",

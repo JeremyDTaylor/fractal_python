@@ -25,12 +25,12 @@ class GetCategoriesResponse:
 
 
 def retrieve_categories(client: ApiClient) -> Generator[List[Category], None, None]:
-    r"""Retrieves pages of all thecategories that Fractal currently supports.
+    r"""Retrieves pages of all the categories that Fractal currently supports.
     Category id and the category name are returned in the response.
 
     :param client: Live or Sandbox API Client
-    :type client: :class:`APIClient <Response>` object
-    :return: :class:`Generator <Generator>` object
+    :type client: ApiClient
+    :yield: A generator of pages of categories
     :rtype: Generator[List[Category], None, None]
     """
     yield from get_paged_response(
