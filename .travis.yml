@@ -6,7 +6,7 @@ python:
 - 3.6
 install:
     - pip install -U virtualenv tox-travis
-    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then pip install --user codecov ; fi
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then pip install codecov ; fi
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then pip install coveralls -e . ; fi
 script:
     - tox

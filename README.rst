@@ -30,6 +30,15 @@ Fractal Python
    :target: https://results.pre-commit.ci/latest/github/JeremyDTaylor/fractal_python/master
    :alt: pre-commit.ci status
 
+.. image:: https://scrutinizer-ci.com/g/JeremyDTaylor/fractal_python/badges/quality-score.png?b=master
+   :target: https://scrutinizer-ci.com/g/JeremyDTaylor/fractal_python/
+
+.. image:: https://scrutinizer-ci.com/g/JeremyDTaylor/fractal_python/badges/build.png?b=master
+   :target: https://scrutinizer-ci.com/g/JeremyDTaylor/fractal_python/
+
+.. image:: :target: https://scrutinizer-ci.com/g/JeremyDTaylor/fractal_python/
+   :target: https://scrutinizer-ci.com/g/JeremyDTaylor/fractal_python/
+
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
      :target: https://github.com/ambv/black
      :alt: Black code style
