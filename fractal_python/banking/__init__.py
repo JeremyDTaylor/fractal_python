@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-    Fractal Banking API service
-"""
+"""Fractal Banking API service."""
 from fractal_python.banking.accounts import (
     retrieve_bank_accounts,
     retrieve_bank_balances,
