@@ -18,7 +18,6 @@ repos:
       - id: check-docstring-first
       - id: check-json
       - id: check-toml
-      - id: detect-aws-credentials
       - id: detect-private-key
       - id: fix-encoding-pragma
 
