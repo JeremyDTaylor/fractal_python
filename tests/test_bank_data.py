@@ -285,6 +285,54 @@ def test_put_bank_consent(put_consent_client):
     )
 
 
+def test_put_bank_consent_400(put_consent_client, requests_mock):
+    requests_mock.register_uri(
+        "PUT", "/banking/v2/banks/6/consents/Consent400", status_code=400
+    )
+    with pytest.raises(AssertionError):
+        put_bank_consent(
+            put_consent_client,
+            code="code",
+            id_token="id_token",
+            state="state",
+            bank_id=6,
+            consent_id="Consent400",
+            company_id="CompanyID1234",
+        )
+
+
+def test_put_bank_consent_404(put_consent_client, requests_mock):
+    requests_mock.register_uri(
+        "PUT", "/banking/v2/banks/6/consents/Consent404", status_code=404
+    )
+    with pytest.raises(AssertionError):
+        put_bank_consent(
+            put_consent_client,
+            code="code",
+            id_token="id_token",
+            state="state",
+            bank_id=6,
+            consent_id="Consent404",
+            company_id="CompanyID1234",
+        )
+
+
+def test_put_bank_consent_502(put_consent_client, requests_mock):
+    requests_mock.register_uri(
+        "PUT", "/banking/v2/banks/6/consents/Consent502", status_code=502
+    )
+    with pytest.raises(AssertionError):
+        put_bank_consent(
+            put_consent_client,
+            code="code",
+            id_token="id_token",
+            state="state",
+            bank_id=6,
+            consent_id="Consent502",
+            company_id="CompanyID1234",
+        )
+
+
 @pytest.fixture()
 def delete_consent_client(requests_mock) -> ApiClient:
     request_headers = {COMPANY_ID_HEADER: "CompanyID1234"}
@@ -304,6 +352,19 @@ def test_delete_bank_consent(delete_consent_client):
         consent_id="ConsentID12",
         company_id="CompanyID1234",
     )
+
+
+def test_delete_bank_consent_404(delete_consent_client, requests_mock):
+    requests_mock.register_uri(
+        "DELETE", "/banking/v2/banks/6/consents/Consent404", status_code=404
+    )
+    with pytest.raises(AssertionError):
+        delete_bank_consent(
+            delete_consent_client,
+            bank_id=6,
+            consent_id="Consent404",
+            company_id="CompanyID1234",
+        )
 
 
 GET_BANK_ACCOUNTS = {

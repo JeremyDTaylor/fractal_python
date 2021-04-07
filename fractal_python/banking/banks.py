@@ -156,7 +156,7 @@ def put_bank_consent(
         company_id=company_id,
     )
     if response.status_code != 204:
-        AssertionError(f"status_code:{response.status_code} {response.text}")
+        raise AssertionError(f"status_code:{response.status_code} {response.text}")
 
 
 def delete_bank_consent(
@@ -179,4 +179,4 @@ def delete_bank_consent(
         company_id=company_id,
     )
     if response.status_code != 202:
-        AssertionError(f"status_code:{response.status_code} {response.text}")
+        raise AssertionError(f"status_code:{response.status_code} {response.text}")
