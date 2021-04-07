@@ -35,13 +35,13 @@ repos:
     hooks:
       - id: black
 
-  - repo: https://github.com/timothycrosley/isort
+  - repo: https://github.com/PyCQA/isort
     rev: 5.8.0
     hooks:
       - id: isort
         args: ["--profile", "black"]
 
-  - repo: https://gitlab.com/pycqa/flake8
+  - repo: https://github.com/PyCQA/flake8
     rev: 3.9.0
     hooks:
       - id: flake8
