@@ -41,7 +41,7 @@ SOURCES_RE = "|".join(SOURCES)
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 @deserialize.parser("date", arrow_or_none)
-class Forecast(object):
+class Forecast:
     id: str
     bank_id: int
     account_id: str
@@ -57,7 +57,7 @@ class Forecast(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetForecastsResponse(object):
+class GetForecastsResponse:
     links: dict
     results: List[Forecast]
 
@@ -92,7 +92,7 @@ def get_forecasts(
 @deserialize.auto_snake()
 @deserialize.parser("value_date", arrow_or_none)
 @deserialize.parser("amount", money_amount)
-class ForecastedTransaction(object):
+class ForecastedTransaction:
     id: str
     bank_id: int
     account_id: str
@@ -119,7 +119,7 @@ class ForecastedTransaction(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetForecastedTransactionsResponse(object):
+class GetForecastedTransactionsResponse:
     links: dict
     results: List[ForecastedTransaction]
 
@@ -159,7 +159,7 @@ def get_forecasted_transactions(
 @deserialize.auto_snake()
 @deserialize.parser("date", arrow_or_none)
 @deserialize.parser("amount", money_amount)
-class ForecastedBalance(object):
+class ForecastedBalance:
     id: str
     bank_id: int
     account_id: str
@@ -183,7 +183,7 @@ class ForecastedBalance(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetForecastedBalanceResponse(object):
+class GetForecastedBalanceResponse:
     links: dict
     results: List[ForecastedBalance]
 

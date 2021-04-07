@@ -12,7 +12,7 @@ merchants = BANKING_ENDPOINT + "/merchants"
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class Merchant(object):
+class Merchant:
     id: str
     name: str
     category_code: str
@@ -21,7 +21,7 @@ class Merchant(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetMerchantsResponse(object):
+class GetMerchantsResponse:
     links: dict
     results: List[Merchant]
 

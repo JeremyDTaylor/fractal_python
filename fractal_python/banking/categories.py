@@ -12,14 +12,14 @@ categories = BANKING_ENDPOINT + "/categories"
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class Category(object):
+class Category:
     id: str
     name: str
 
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetCategoriesResponse(object):
+class GetCategoriesResponse:
     links: dict
     results: List[Category]
 

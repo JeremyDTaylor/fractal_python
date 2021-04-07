@@ -14,7 +14,7 @@ endpoint = "/company/v2/companies"
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class NewCompany(object):
+class NewCompany:
     name: str = attr.ib(
         validator=[
             attr.validators.instance_of(str),
@@ -71,14 +71,14 @@ class CompanyEncoder(json.JSONEncoder):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetCompaniesResponse(object):
+class GetCompaniesResponse:
     links: dict
     results: List[Company]
 
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class CreateResponse(object):
+class CreateResponse:
     id: str
     message: str
     status: int

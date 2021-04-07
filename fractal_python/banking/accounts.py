@@ -24,7 +24,7 @@ SOURCES_RE = "|".join(SOURCES)
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class AccountInformation(object):
+class AccountInformation:
     scheme_name: str
     identification: str
     name: str
@@ -38,7 +38,7 @@ def account_information(value: str) -> AccountInformation:
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 @deserialize.parser("account", account_information)
-class BankAccount(object):
+class BankAccount:
     id: str
     bank_id: int
     currency: str
@@ -55,7 +55,7 @@ class BankAccount(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetBankAccountsResponse(object):
+class GetBankAccountsResponse:
     links: dict
     results: List[BankAccount]
 
@@ -107,7 +107,7 @@ BALANCE_TYPES_RE = "|".join(BALANCE_TYPES)
 @deserialize.auto_snake()
 @deserialize.parser("date", arrow_or_none)
 @deserialize.parser("amount", money_amount)
-class BankBalance(object):
+class BankBalance:
     id: str
     account_id: str
     bank_id: int
@@ -137,7 +137,7 @@ class BankBalance(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetBankBalancesResponse(object):
+class GetBankBalancesResponse:
     links: dict
     results: List[BankBalance]
 
@@ -182,7 +182,7 @@ MERCHANT_SOURCE_TYPES_RE = "|".join(MERCHANT_SOURCE_TYPES)
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class Merchant(object):
+class Merchant:
     id: str
     name: str
     category_code: Optional[str]
@@ -205,7 +205,7 @@ CATEGORY_SOURCE_TYPES_RE = "|".join(CATEGORY_SOURCE_TYPES)
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class Category(object):
+class Category:
     id: str
     name: str
     category_code: Optional[str]
@@ -233,7 +233,7 @@ TRANSACTION_STATUS_RE = "|".join(TRANSACTION_STATUS)
 @deserialize.parser("amount", money_amount)
 @deserialize.parser("merchant", merchant)
 @deserialize.parser("category", category)
-class BankTransaction(object):
+class BankTransaction:
     id: str
     account_id: str
     bank_id: int
@@ -272,7 +272,7 @@ class BankTransaction(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetBankTransactionResponse(object):
+class GetBankTransactionResponse:
     links: dict
     results: List[BankTransaction]
 
