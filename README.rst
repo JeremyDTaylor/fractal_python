@@ -3,28 +3,31 @@ Fractal Python
 ==============
 
 .. image:: https://img.shields.io/pypi/v/fractal_python.svg
-        :target: https://pypi.python.org/pypi/fractal_python
+   :target: https://pypi.python.org/pypi/fractal_python
 
 .. image:: https://img.shields.io/pypi/pyversions/fractal_python.svg
    :alt: Supported Python Versions
    :target: https://pypi.python.org/pypi/fractal_python
 
 .. image:: https://coveralls.io/repos/github/JeremyDTaylor/fractal_python/badge.svg?branch=master
-        :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
-        :alt: Coverage
+   :target: https://coveralls.io/github/JeremyDTaylor/fractal_python?branch=master
+   :alt: Coverage
 
 .. image:: https://codecov.io/gh/JeremyDTaylor/fractal_python/branch/master/graph/badge.svg
-  :target: https://codecov.io/gh/JeremyDTaylor/fractal_python
+   :target: https://codecov.io/gh/JeremyDTaylor/fractal_python
+
+.. image:: https://app.codacy.com/project/badge/Grade/69396dc330234f338bffdab382120db5
+   :target: https://www.codacy.com/gh/JeremyDTaylor/fractal_python/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=JeremyDTaylor/fractal_python&amp;utm_campaign=Badge_Grade
 
 .. image:: https://deepsource.io/gh/JeremyDTaylor/fractal_python.svg/?label=active+issues&show_trend=true
-        :target: https://deepsource.io/gh/JeremyDTaylor/fractal_python/?ref=repository-badge
+   :target: https://deepsource.io/gh/JeremyDTaylor/fractal_python/?ref=repository-badge
 
 .. image:: https://travis-ci.com/JeremyDTaylor/fractal_python.svg?branch=master
-    :target: https://travis-ci.com/JeremyDTaylor/fractal_python
+   :target: https://travis-ci.com/JeremyDTaylor/fractal_python
 
 .. image:: https://readthedocs.org/projects/fractal-python/badge/?version=latest
-        :target: https://fractal-python.readthedocs.io/en/latest/?version=latest
-        :alt: Documentation Status
+   :target: https://fractal-python.readthedocs.io/en/latest/?version=latest
+   :alt: Documentation Status
 
 .. image:: https://results.pre-commit.ci/badge/github/JeremyDTaylor/fractal_python/master.svg
    :target: https://results.pre-commit.ci/latest/github/JeremyDTaylor/fractal_python/master

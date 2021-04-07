@@ -18,6 +18,11 @@ AUTHORIZATION_HEADER = "Authorization"
 
 class ApiClient:
     def __init__(self, base_url: str, api_key: str, partner_id: str):
+        r"""
+        :param base_url: url for the API
+        :param api_key: Secret API Key
+        :param partner_id: Unique partner id
+        """
         self.base_url = base_url
         self.headers = {
             "Content-Type": "application/json",

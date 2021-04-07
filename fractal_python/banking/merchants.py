@@ -27,8 +27,7 @@ class GetMerchantsResponse:
 
 
 def retrieve_merchants(client: ApiClient) -> Generator[List[Merchant], None, None]:
-    r"""
-    Retrieves pages of all the merchants that are currently categorised by Fractal.
+    r"""Retrieves pages of all the merchants that are currently categorised by Fractal.
     Merchant id and the merchant name are returned in the response.
 
     :param client: Live or Sandbox API Client

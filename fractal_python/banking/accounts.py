@@ -64,7 +64,8 @@ def retrieve_bank_accounts(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankAccount], None, None]:
     r"""
-    Retrieves pages of all connected bank accounts for a business.
+    Retrieves pages of all connected bank accounts for a business
+
     Can be filtered by providing a bank_id.
 
     :param client: Live or Sandbox API Client

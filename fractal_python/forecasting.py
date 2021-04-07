@@ -65,8 +65,7 @@ class GetForecastsResponse:
 def get_forecasts(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[Forecast], None, None]:
-    r"""
-    Get all forecasts for the company.
+    r"""Get all forecasts for the company.
 
     :param client: Live or Sandbox API Client
     :type client: :class:`APIClient <Response>` object

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import uuid
 from typing import Any, Dict, List
 
 import deserialize  # type: ignore
@@ -41,13 +42,14 @@ GET_BANKS_1_PAGE_1: Dict[str, Any] = {
 
 @pytest.fixture()
 def valid_bank() -> Bank:
-    return new_bank(id=7, name="Natwest", logo="data:image/svg+xml;base64,<link>")
+    return new_bank(bank_id=7, name="Natwest", logo="data:image/svg+xml;base64,<link>")
 
 
-def test_deserialize_bank(valid_bank):
+def test_deserialize_bank(valid_bank: Bank):
     bank = deserialize.deserialize(
         Bank, {"id": 7, "name": "Natwest", "logo": "data:image/svg+xml;base64,<link>"}
     )
+    assert isinstance(bank, Bank)
     assert bank == valid_bank
 
 
@@ -277,7 +279,7 @@ def test_put_bank_consent(put_consent_client):
     put_bank_consent(
         put_consent_client,
         code="code",
-        id_token="id_token",
+        id_token=str(uuid.uuid4()),
         state="state",
         bank_id=6,
         consent_id="ConsentID12",

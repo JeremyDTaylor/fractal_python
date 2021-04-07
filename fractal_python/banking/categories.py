@@ -25,8 +25,7 @@ class GetCategoriesResponse:
 
 
 def retrieve_categories(client: ApiClient) -> Generator[List[Category], None, None]:
-    r"""
-    Retrieves pages of all thecategories that Fractal currently supports.
+    r"""Retrieves pages of all thecategories that Fractal currently supports.
     Category id and the category name are returned in the response.
 
     :param client: Live or Sandbox API Client

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-from typing import Generator, List, Optional
+from typing import Any, Dict, Generator, List, Optional
 
 import arrow
 import attr
@@ -42,7 +42,7 @@ def new_company(
 
 
 class NewCompanyEncoder(json.JSONEncoder):
-    def default(self, o: NewCompany) -> dict:
+    def default(self, o: NewCompany) -> Dict[str, Any]:
         return {camelcase(k): v for k, v in o.__dict__.items() if v}
 
 
@@ -55,11 +55,13 @@ class Company(NewCompany):
 
 
 class CompanyEncoder(json.JSONEncoder):
-    def default(self, o: Company) -> dict:
+    def default(self, o: Company) -> Dict[str, Any]:
         arrow_attrs = [
             x
             for x in dir(o)
-            if type(getattr(o, x)) is arrow.Arrow and x[:2] != "__" and x[-2:] != "__"
+            if isinstance(getattr(o, x), arrow.Arrow)
+            and x[:2] != "__"
+            and x[-2:] != "__"
         ]
         company = {
             camelcase(k): v for k, v in o.__dict__.items() if v and k not in arrow_attrs

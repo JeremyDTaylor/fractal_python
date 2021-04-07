@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import json
-from typing import Generator, List, Optional
+from typing import Any, Dict, Generator, List, Optional
 
 import arrow
 import attr
@@ -29,16 +29,16 @@ class Bank:
 
 
 def new_bank(
-    id: int,
+    bank_id: int,
     name: str,
     logo: str = None,
     logo_url: str = None,
 ) -> Bank:
-    return Bank(id, name, logo, logo_url)
+    return Bank(bank_id, name, logo, logo_url)
 
 
 class BankEncoder(json.JSONEncoder):
-    def default(self, o: Bank) -> dict:
+    def default(self, o: Bank) -> Dict[str, Any]:
         return {camelcase(k): v for k, v in o.__dict__.items() if v}
 
 
