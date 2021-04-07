@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import arrow
 import deserialize  # type: ignore
 import pytest

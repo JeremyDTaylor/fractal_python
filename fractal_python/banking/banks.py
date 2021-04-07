@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 from typing import Generator, List, Optional
 
@@ -154,7 +155,8 @@ def put_bank_consent(
         body=json.dumps(payload),
         company_id=company_id,
     )
-    assert response.status_code == 204
+    if response.status_code != 204:
+        AssertionError(f"status_code:{response.status_code} {response.text}")
 
 
 def delete_bank_consent(
@@ -176,4 +178,5 @@ def delete_bank_consent(
         "DELETE",
         company_id=company_id,
     )
-    assert response.status_code == 202
+    if response.status_code != 202:
+        AssertionError(f"status_code:{response.status_code} {response.text}")

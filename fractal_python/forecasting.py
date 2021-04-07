@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from decimal import Decimal
 from typing import Generator, List
 
@@ -191,7 +192,7 @@ def get_forecasted_balances(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[ForecastedBalance], None, None]:
     r"""
-    Get all forecasted transactions linked to the provided forecast id.
+    Get all forecasted balances linked to the provided forecast id.
 
     :param client: Live or Sandbox API Client
     :type client: :class:`APIClient <Response>` object

@@ -35,6 +35,10 @@ Fractal Python
      :target: http://mypy-lang.org/
      :alt: Checked with mypy
 
+.. image:: https://img.shields.io/badge/security-bandit-yellow.svg
+    :target: https://github.com/PyCQA/bandit
+    :alt: Security Status
+
 .. image:: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/shield.svg
      :target: https://pyup.io/repos/github/JeremyDTaylor/fractal_python/
      :alt: Updates

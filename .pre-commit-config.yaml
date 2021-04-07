@@ -9,6 +9,27 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+      - id: debug-statements
+      - id: check-ast
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: check-docstring-first
+      - id: check-json
+      - id: check-toml
+      - id: detect-aws-credentials
+      - id: detect-private-key
+      - id: fix-encoding-pragma
+
+  - repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.8.0
+    hooks:
+      - id: python-check-blanket-noqa
+      - id: python-check-mock-methods
+      - id: python-no-eval
+      - id: python-no-log-warn
+      - id: python-use-type-annotations
 
   - repo: https://github.com/psf/black
     rev: 20.8b1
@@ -32,3 +53,9 @@ repos:
     rev: v0.812
     hooks:
       - id: mypy
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.0
+    hooks:
+      - id: bandit
+        exclude: ^tests/

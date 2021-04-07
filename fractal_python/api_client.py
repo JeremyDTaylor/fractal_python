@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 from decimal import ROUND_HALF_UP, Decimal
 from typing import Any, Collection, Dict, Generator, Optional, Type

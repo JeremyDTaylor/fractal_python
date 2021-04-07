@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 from typing import Generator, List, Optional
 
@@ -132,9 +133,11 @@ def create_company(
 
 
 def delete_company(client: ApiClient, company_id: str):
-    assert company_id.strip()
+    if not company_id.strip():
+        raise AssertionError(f'Invalid company_id "{company_id}"')
     response = client.call_api(f"{endpoint}/{company_id}", "DELETE")
-    assert response.status_code == 202
+    if response.status_code != 202:
+        raise AssertionError(f"status_code:{response.status_code} {response.text}")
 
 
 def update_company(client: ApiClient, company: Company):
@@ -144,4 +147,5 @@ def update_company(client: ApiClient, company: Company):
         "PUT",
         body=body,
     )
-    assert response.status_code == 204
+    if response.status_code != 204:
+        raise AssertionError(f"status_code:{response.status_code} {response.text}")

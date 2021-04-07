@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from fractal_python.banking.accounts import (
     retrieve_bank_accounts,
     retrieve_bank_balances,
