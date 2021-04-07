@@ -21,7 +21,7 @@ consents = "consents"
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class Bank(object):
+class Bank:
     id: int
     name: str
     logo: Optional[str]
@@ -44,7 +44,7 @@ class BankEncoder(json.JSONEncoder):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetBanksResponse(object):
+class GetBanksResponse:
     links: dict
     results: List[Bank]
 
@@ -57,7 +57,7 @@ def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class CreateBankConsentResponse(object):
+class CreateBankConsentResponse:
     signin_url: str
     consent_id: str
     bank_id: int
@@ -87,7 +87,7 @@ def create_bank_consent(
 @deserialize.parser("expiry_date", arrow_or_none)
 @deserialize.parser("date_created", arrow_or_none)
 @deserialize.parser("authorised_date", arrow_or_none)
-class BankConsent(object):
+class BankConsent:
     company_id: str
     permission: str
     expiry_date: Optional[arrow.Arrow]
@@ -101,7 +101,7 @@ class BankConsent(object):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetBankConsentsResponse(object):
+class GetBankConsentsResponse:
     links: dict
     results: List[BankConsent]
 

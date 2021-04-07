@@ -16,7 +16,7 @@ COMPANY_ID_HEADER = "X-Company-Id"
 AUTHORIZATION_HEADER = "Authorization"
 
 
-class ApiClient(object):
+class ApiClient:
     def __init__(self, base_url: str, api_key: str, partner_id: str):
         self.base_url = base_url
         self.headers = {
