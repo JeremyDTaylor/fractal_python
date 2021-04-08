@@ -12,7 +12,7 @@ before_script:
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then bash <(curl -Ls https://coverage.codacy.com/get.sh) download; fi
 script:
     - tox
-    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coverage run --source=fractal_python setup.py test; fi
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coverage run --source=fractal_python setup.py test && coverage report -m; fi
 after_success:
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coveralls; fi
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then codecov; fi
