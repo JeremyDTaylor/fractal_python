@@ -29,6 +29,7 @@ from fractal_python.banking.accounts import BankAccount, BankBalance, BankTransa
 from tests.test_api_client import TOKEN_RESPONSE
 
 TEST_BASE_URL = "http://test"
+TEST_AUTH_URL = "http://auth"
 ACCOUNTS_ENDPOINT = f"{TEST_BASE_URL}{accounts}"
 BALANCES_ENDPOINT = f"{TEST_BASE_URL}{balances}"
 BANKS_ENDPOINT = f"{TEST_BASE_URL}{banks_endpoint}"
@@ -80,7 +81,9 @@ def test_deserialize_bank(valid_bank: Bank):
 @pytest.fixture()
 def mock_client(requests_mock) -> ApiClient:
     requests_mock.register_uri("POST", "/token", text=json.dumps(TOKEN_RESPONSE))
-    return ApiClient(f"{TEST_BASE_URL}", "sandbox-key", "sandbox-partner")
+    return ApiClient(
+        f"{TEST_AUTH_URL}", f"{TEST_BASE_URL}", "sandbox-key", "sandbox-partner"
+    )
 
 
 @pytest.fixture()

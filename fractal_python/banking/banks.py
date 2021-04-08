@@ -43,6 +43,10 @@ def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
     :type client: ApiClient
     :yield: Page of Banks
     :rtype: Generator[List[Bank], None, None]
+
+    Usage::
+
+      >>> banks =[x for y in banking.retrieve_banks(client) for x in y]
     """
     yield from _get_paged_response(
         client=client,

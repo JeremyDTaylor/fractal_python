@@ -123,27 +123,14 @@ BALANCE_TYPES = ("DEBIT", "CREDIT")
 BALANCE_TYPES_RE = "|".join(BALANCE_TYPES)
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-@deserialize.parser("date", _arrow_or_none)
 @deserialize.parser("amount", _money_amount)
-class BankBalance:
-
-    r"""A Bank Account Balance with a unique id.
-
-    :attr id: unique within the bank at least identifier.
-    :attr account_id: account that this balance is for.
-    :attr bank_id: unique id of the bank that operates the account.
+class Amount:
+    r"""
     :attr currency: the currency of the account.
     :attr date: date of the balance
     :attr amount: decimal amount
-    :attr type: either DEBIT or CREDIT
-    """
-    id: str
-    account_id: str
-    bank_id: int
+    :attr type: either DEBIT or CREDIT"""
     currency: str
-    date: arrow.Arrow
     amount: Decimal
     type: str = attr.ib(
         validator=[
@@ -151,6 +138,34 @@ class BankBalance:
             attr.validators.matches_re(BALANCE_TYPES_RE),
         ]
     )
+
+
+class AccountEntity:
+    r"""A uniquely identifiable Bank Account entity.
+
+    :attr id: unique within the bank at least identifier.
+    :attr account_id: account that this balance is for.
+    :attr bank_id: unique id of the bank that operates the account.
+    """
+    id: str
+    bank_id: int
+    account_id: str
+
+
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
+@deserialize.parser("date", _arrow_or_none)
+@deserialize.parser("amount", _money_amount)
+class BankBalance(Amount, AccountEntity):
+    r"""A Bank Account Balance with a unique id.
+
+    :attr id: unique within the bank at least identifier.
+    :attr account_id: account that this balance is for.
+    :attr bank_id: unique id of the bank that operates the account.
+    :attr currency: the currency of the account.
+    :attr date: date of the balance
+    """
+    date: arrow.Arrow
     status: str = attr.ib(
         validator=[
             attr.validators.instance_of(str),
@@ -264,13 +279,9 @@ TRANSACTION_STATUS_RE = "|".join(TRANSACTION_STATUS)
 @deserialize.auto_snake()
 @deserialize.parser("booking_date", _arrow_or_none)
 @deserialize.parser("value_date", _arrow_or_none)
-@deserialize.parser("amount", _money_amount)
 @deserialize.parser("merchant", merchant)
 @deserialize.parser("category", category)
-class BankTransaction:
-    id: str
-    account_id: str
-    bank_id: int
+class BankTransaction(Amount, AccountEntity):
     booking_date: arrow.Arrow
     value_date: arrow.Arrow
     transaction_code: Optional[str]
@@ -279,14 +290,6 @@ class BankTransaction:
     proprietary_sub_code: Optional[str]
     reference: Optional[str]
     description: str
-    currency: str
-    amount: Decimal
-    type: str = attr.ib(
-        validator=[
-            attr.validators.instance_of(str),
-            attr.validators.matches_re(BALANCE_TYPES_RE),
-        ]
-    )
     status: str = attr.ib(
         validator=[
             attr.validators.instance_of(str),

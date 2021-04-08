@@ -41,11 +41,16 @@ def test_live(live):
     assert "live-partner" in live.headers.values()
 
 
-def test_authorise(requests_mock, freezer, sandbox):  # skipcq: PYL-W0613
-    requests_mock.register_uri("POST", "/token", text=json.dumps(TOKEN_RESPONSE))
-    sandbox.expires_at = arrow.now().shift(seconds=-1801)
-    sandbox.authorise()
+def test_authorise(requests_mock, freezer, live):  # skipcq: PYL-W0613
+    headers = {"X-Api-Key": "live-key", "X-Partner-Id": "live-partner"}
+    requests_mock.register_uri(
+        "POST",
+        "https://auth.askfractal.com/token",
+        text=json.dumps(TOKEN_RESPONSE),
+        request_headers=headers,
+    )
+    live.expires_at = arrow.now().shift(seconds=-1801)
+    live.authorise()
     assert (
-        sandbox.expires_at.int_timestamp
-        == arrow.now().shift(seconds=1800).int_timestamp
+        live.expires_at.int_timestamp == arrow.now().shift(seconds=1800).int_timestamp
     )

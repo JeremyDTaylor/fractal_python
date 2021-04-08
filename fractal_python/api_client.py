@@ -9,7 +9,9 @@ import requests
 from stringcase import camelcase
 
 SANDBOX = "https://sandbox.askfractal.com"
-LIVE = "https://api.askfractal.com"
+SANDBOX_AUTH = "https://sandbox.askfractal.com"
+LIVE = "https://apis.askfractal.com"
+LIVE_AUTH = "https://auth.askfractal.com"
 API_KEY_HEADER = "X-Api-Key"
 PARTNER_ID_HEADER = "X-Partner-Id"
 COMPANY_ID_HEADER = "X-Company-Id"
@@ -17,20 +19,22 @@ AUTHORIZATION_HEADER = "Authorization"
 
 
 class ApiClient:
-    def __init__(self, base_url: str, api_key: str, partner_id: str):
+    def __init__(self, auth_url: str, base_url: str, api_key: str, partner_id: str):
         r"""Fractal API Client.
 
+        :param auth_url: url for authorisation
         :param base_url: url for the API
         :param api_key: Secret API Key
         :param partner_id: Unique partner id
         """
+        self.auth_url = auth_url
         self.base_url = base_url
         self.headers = {
             "Content-Type": "application/json",
             API_KEY_HEADER: api_key,
             PARTNER_ID_HEADER: partner_id,
         }
-        self.expires_at = arrow.now()
+        self.expires_at = arrow.now().shift(seconds=-30)
 
     def call_api(
         self,
@@ -67,7 +71,7 @@ class ApiClient:
     def authorise(self):
         now = arrow.now()
         if now > self.expires_at:
-            url = self.base_url + "/token"
+            url = self.auth_url + "/token"
             self.headers.pop(AUTHORIZATION_HEADER, None)
             response = requests.request("POST", url, headers=self.headers)
             json_response = json.loads(response.text)
@@ -91,7 +95,7 @@ def sandbox(api_key: str, partner_id: str) -> ApiClient:
       >>> from fractal_python import api_client
       >>> client = api_client.sandbox('secret key', 'partner id')
     """
-    return ApiClient(SANDBOX, api_key, partner_id)
+    return ApiClient(SANDBOX_AUTH, SANDBOX, api_key, partner_id)
 
 
 def live(api_key: str, partner_id: str) -> ApiClient:
@@ -108,7 +112,7 @@ def live(api_key: str, partner_id: str) -> ApiClient:
       >>> from fractal_python import api_client
       >>> client = api_client.sandbox('secret key', 'partner id')
     """
-    return ApiClient(LIVE, api_key, partner_id)
+    return ApiClient(LIVE_AUTH, LIVE, api_key, partner_id)
 
 
 def _call_api(
