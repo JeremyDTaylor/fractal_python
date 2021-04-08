@@ -1,4 +1,3 @@
-[bandit]
 ### Bandit config file generated from:
 # '/Users/jeremytaylor/.pyenv/versions/3.6.13/bin/bandit-config-generator --out bandit.profile'
 
