@@ -8,9 +8,9 @@ import deserialize  # type: ignore
 
 from fractal_python.api_client import (
     ApiClient,
-    arrow_or_none,
-    get_paged_response,
-    money_amount,
+    _arrow_or_none,
+    _get_paged_response,
+    _money_amount,
 )
 from fractal_python.banking.api import BANKING_ENDPOINT
 
@@ -35,7 +35,7 @@ class AccountInformation:
     :attr name: the name or names of the account owner(s) represented at an account
     level, as displayed by the ASPSP's online channels. Note, the account name is not
     the product name or the nickname of the account.
-    :attr secondary_identification: econdary identification of the account, as assigned
+    :attr secondary_identification: secondary identification of the account, as assigned
     by the account servicing institution. This can be used by building societies to
     additionally identify accounts with a roll number (in addition to a sort code and
     account number combination).
@@ -54,6 +54,16 @@ def account_information(value: str) -> AccountInformation:
 @deserialize.auto_snake()
 @deserialize.parser("account", account_information)
 class BankAccount:
+
+    r"""A Bank Account with a unique id.
+
+    :attr id: unique within the bank at least identifier.
+    :attr bank_id: unique id of the bank that operates the account.
+    :attr currency: the currency of the account.
+    :attr nickname: human friendly non-unique name
+    :attr account: list of AccountInformation objects
+    :attr source: either MANUALIMPORT or OPENBANKING
+    """
     id: str
     bank_id: int
     currency: str
@@ -86,7 +96,7 @@ def retrieve_bank_accounts(
     :yield: Pages of BankAccounts
     :rtype: Generator[List[BankAccount], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=company_id,
         params=("bank_id",),
@@ -115,9 +125,20 @@ BALANCE_TYPES_RE = "|".join(BALANCE_TYPES)
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-@deserialize.parser("date", arrow_or_none)
-@deserialize.parser("amount", money_amount)
+@deserialize.parser("date", _arrow_or_none)
+@deserialize.parser("amount", _money_amount)
 class BankBalance:
+
+    r"""A Bank Account Balance with a unique id.
+
+    :attr id: unique within the bank at least identifier.
+    :attr account_id: account that this balance is for.
+    :attr bank_id: unique id of the bank that operates the account.
+    :attr currency: the currency of the account.
+    :attr date: date of the balance
+    :attr amount: decimal amount
+    :attr type: either DEBIT or CREDIT
+    """
     id: str
     account_id: str
     bank_id: int
@@ -168,7 +189,7 @@ def retrieve_bank_balances(
     :yield: Pages of BankBalances
     :rtype: Generator[List[BankBalance], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=company_id,
         params=["bank_id", "account_id", "from", "to"],
@@ -185,6 +206,17 @@ MERCHANT_SOURCE_TYPES_RE = "|".join(MERCHANT_SOURCE_TYPES)
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class Merchant:
+
+    r"""Merchant
+
+    Any counter party useful for categorisation.
+
+    :attr id: unique identifier.
+    :attr name: name of the merchant.
+    :attr category_code: category.
+    :attr address_line: address if known
+    :attr source: either MODEL or USER or PROVIDER
+    """
     id: str
     name: str
     category_code: Optional[str]
@@ -230,9 +262,9 @@ TRANSACTION_STATUS_RE = "|".join(TRANSACTION_STATUS)
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-@deserialize.parser("booking_date", arrow_or_none)
-@deserialize.parser("value_date", arrow_or_none)
-@deserialize.parser("amount", money_amount)
+@deserialize.parser("booking_date", _arrow_or_none)
+@deserialize.parser("value_date", _arrow_or_none)
+@deserialize.parser("amount", _money_amount)
 @deserialize.parser("merchant", merchant)
 @deserialize.parser("category", category)
 class BankTransaction:
@@ -294,7 +326,7 @@ def retrieve_bank_transactions(
     :yield: Pages of BankTransactions
     :rtype: Generator[List[BankTransaction], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=company_id,
         params=[

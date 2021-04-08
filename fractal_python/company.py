@@ -7,7 +7,7 @@ import attr
 import deserialize  # type: ignore
 from stringcase import camelcase
 
-from fractal_python.api_client import ApiClient, get_paged_response
+from fractal_python.api_client import ApiClient, _get_paged_response
 
 endpoint = "/company/v2/companies"
 
@@ -93,7 +93,7 @@ def get_companies(client: ApiClient, **kwargs) -> Generator[List[Company], None,
     :yield: pages of Companies objects
     :rtype: Generator[List[Company], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=None,
         params=[

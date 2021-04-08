@@ -78,10 +78,26 @@ class ApiClient:
 
 
 def sandbox(api_key: str, partner_id: str) -> ApiClient:
+    r"""
+    Returns a client for the sandbox api.
+
+    :param api_key: secret key issued to the partner
+    :param partner_id: unique if of the partner
+    :return: an ApiClient for the sandbox
+    :rtype: ApiClient
+    """
     return ApiClient(SANDBOX, api_key, partner_id)
 
 
 def live(api_key: str, partner_id: str) -> ApiClient:
+    r"""
+    Returns a client for the live api.
+
+    :param api_key: secret key issued to the partner
+    :param partner_id: unique if of the partner
+    :return: an ApiClient for the live system
+    :rtype: ApiClient
+    """
     return ApiClient(LIVE, api_key, partner_id)
 
 
@@ -107,7 +123,7 @@ def _handle_get_response(response, cls):
     return results, next_page
 
 
-def get_paged_response(
+def _get_paged_response(
     client: ApiClient,
     company_id: Optional[str],
     params: Optional[Collection[str]],
@@ -136,9 +152,9 @@ def get_paged_response(
         yield results
 
 
-def arrow_or_none(value: Any):
+def _arrow_or_none(value: Any):
     return arrow.get(value) if value else None
 
 
-def money_amount(value: Any):
+def _money_amount(value: Any):
     return Decimal(value).quantize(Decimal("0.01"), ROUND_HALF_UP) if value else None

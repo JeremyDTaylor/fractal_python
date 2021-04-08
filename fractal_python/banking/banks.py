@@ -8,9 +8,9 @@ import deserialize
 
 from fractal_python.api_client import (
     ApiClient,
+    _arrow_or_none,
     _call_api,
-    arrow_or_none,
-    get_paged_response,
+    _get_paged_response,
 )
 from fractal_python.banking.api import BANKING_ENDPOINT
 
@@ -44,7 +44,7 @@ def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
     :yield: Page of Banks
     :rtype: Generator[List[Bank], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=None,
         params=None,
@@ -82,9 +82,9 @@ def create_bank_consent(
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-@deserialize.parser("expiry_date", arrow_or_none)
-@deserialize.parser("date_created", arrow_or_none)
-@deserialize.parser("authorised_date", arrow_or_none)
+@deserialize.parser("expiry_date", _arrow_or_none)
+@deserialize.parser("date_created", _arrow_or_none)
+@deserialize.parser("authorised_date", _arrow_or_none)
 class BankConsent:
     company_id: str
     permission: str
@@ -112,7 +112,7 @@ def retrieve_bank_consents(
     :rtype: Generator[List[BankConsent], None, None]
     """
     url = f"{banks_endpoint}/{bank_id}/{consents}"
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=company_id,
         params=[],

@@ -4,7 +4,7 @@ from typing import Generator, List
 import attr
 import deserialize  # type: ignore
 
-from fractal_python.api_client import ApiClient, get_paged_response
+from fractal_python.api_client import ApiClient, _get_paged_response
 from fractal_python.banking.api import BANKING_ENDPOINT
 
 merchants = BANKING_ENDPOINT + "/merchants"
@@ -28,7 +28,7 @@ def retrieve_merchants(client: ApiClient) -> Generator[List[Merchant], None, Non
     :yield: Pages of Merchants
     :rtype: Generator[List[Merchant], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=None,
         params=None,

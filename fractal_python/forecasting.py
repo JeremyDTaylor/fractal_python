@@ -8,9 +8,9 @@ import deserialize  # type: ignore
 
 from fractal_python.api_client import (
     ApiClient,
-    arrow_or_none,
-    get_paged_response,
-    money_amount,
+    _arrow_or_none,
+    _get_paged_response,
+    _money_amount,
 )
 from fractal_python.banking.accounts import BALANCE_TYPES_RE
 
@@ -40,7 +40,7 @@ SOURCES_RE = "|".join(SOURCES)
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-@deserialize.parser("date", arrow_or_none)
+@deserialize.parser("date", _arrow_or_none)
 class Forecast:
     id: str
     bank_id: int
@@ -72,7 +72,7 @@ def get_forecasts(
     :yield: Pages of Forecast objects
     :rtype: Generator[List[Forecast], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=company_id,
         params=BANK_ACCOUNT_PARAMS,
@@ -84,8 +84,8 @@ def get_forecasts(
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-@deserialize.parser("value_date", arrow_or_none)
-@deserialize.parser("amount", money_amount)
+@deserialize.parser("value_date", _arrow_or_none)
+@deserialize.parser("amount", _money_amount)
 class ForecastedTransaction:
     id: str
     bank_id: int
@@ -134,7 +134,7 @@ def get_forecasted_transactions(
     :yield: Pages of ForecastedBankTransaction objects
     :rtype: Generator[List[ForecastedTransaction], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=company_id,
         params=FORECASTED_PARAMS,
@@ -146,8 +146,8 @@ def get_forecasted_transactions(
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-@deserialize.parser("date", arrow_or_none)
-@deserialize.parser("amount", money_amount)
+@deserialize.parser("date", _arrow_or_none)
+@deserialize.parser("amount", _money_amount)
 class ForecastedBalance:
     id: str
     bank_id: int
@@ -193,7 +193,7 @@ def get_forecasted_balances(
     :yield: pages of ForecastedBalance objects
     :rtype: Generator[List[ForecastedBalance], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=company_id,
         params=FORECASTED_PARAMS,

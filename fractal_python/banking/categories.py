@@ -4,7 +4,7 @@ from typing import Generator, List
 import attr
 import deserialize  # type: ignore
 
-from fractal_python.api_client import ApiClient, get_paged_response
+from fractal_python.api_client import ApiClient, _get_paged_response
 from fractal_python.banking.api import BANKING_ENDPOINT
 
 categories = BANKING_ENDPOINT + "/categories"
@@ -26,7 +26,7 @@ def retrieve_categories(client: ApiClient) -> Generator[List[Category], None, No
     :yield: A generator of pages of categories
     :rtype: Generator[List[Category], None, None]
     """
-    yield from get_paged_response(
+    yield from _get_paged_response(
         client=client,
         company_id=None,
         params=None,
