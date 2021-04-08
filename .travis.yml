@@ -16,7 +16,7 @@ script:
 after_success:
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coveralls; fi
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then codecov; fi
-    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then bash <(curl -Ls https://coverage.codacy.com/get.sh); fi
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r coverage.xml; fi
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel

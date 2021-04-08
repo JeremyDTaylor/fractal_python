@@ -305,7 +305,7 @@ def put_consent_client(requests_mock, mock_client) -> ApiClient:
 def test_put_bank_consent(put_consent_client):
     put_bank_consent(
         put_consent_client,
-        code="code",
+        code=str(uuid.uuid4()),
         id_token=str(uuid.uuid4()),
         state="state",
         bank_id=BANK_ID,
@@ -321,8 +321,8 @@ def test_put_bank_consent_400(put_consent_client, requests_mock):
     with pytest.raises(AssertionError):
         put_bank_consent(
             put_consent_client,
-            code="code",
-            id_token="id_token",
+            code=str(uuid.uuid4()),
+            id_token=str(uuid.uuid4()),
             state="state",
             bank_id=BANK_ID,
             consent_id="Consent400",
@@ -337,8 +337,8 @@ def test_put_bank_consent_404(put_consent_client, requests_mock):
     with pytest.raises(AssertionError):
         put_bank_consent(
             put_consent_client,
-            code="code",
-            id_token="id_token",
+            code=str(uuid.uuid4()),
+            id_token=str(uuid.uuid4()),
             state="state",
             bank_id=BANK_ID,
             consent_id="Consent404",
@@ -353,8 +353,8 @@ def test_put_bank_consent_502(put_consent_client, requests_mock):
     with pytest.raises(AssertionError):
         put_bank_consent(
             put_consent_client,
-            code="code",
-            id_token="id_token",
+            code=str(uuid.uuid4()),
+            id_token=str(uuid.uuid4()),
             state="state",
             bank_id=BANK_ID,
             consent_id="Consent502",

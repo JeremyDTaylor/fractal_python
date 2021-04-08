@@ -85,6 +85,11 @@ def sandbox(api_key: str, partner_id: str) -> ApiClient:
     :param partner_id: unique if of the partner
     :return: an ApiClient for the sandbox
     :rtype: ApiClient
+
+    Usage::
+
+      >>> from fractal_python import api_client
+      >>> client = api_client.sandbox('secret key', 'partner id')
     """
     return ApiClient(SANDBOX, api_key, partner_id)
 
@@ -97,6 +102,11 @@ def live(api_key: str, partner_id: str) -> ApiClient:
     :param partner_id: unique if of the partner
     :return: an ApiClient for the live system
     :rtype: ApiClient
+
+    Usage::
+
+      >>> from fractal_python import api_client
+      >>> client = api_client.sandbox('secret key', 'partner id')
     """
     return ApiClient(LIVE, api_key, partner_id)
 
