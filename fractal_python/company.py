@@ -42,7 +42,7 @@ def new_company(
 
 
 class NewCompanyEncoder(json.JSONEncoder):
-    def default(self, o: NewCompany) -> Dict[str, Any]:
+    def default(self, o: NewCompany) -> Dict[str, Any]:  # pylint: disable=E0202
         return {camelcase(k): v for k, v in o.__dict__.items() if v}
 
 
@@ -55,7 +55,7 @@ class Company(NewCompany):
 
 
 class CompanyEncoder(json.JSONEncoder):
-    def default(self, o: Company) -> Dict[str, Any]:
+    def default(self, o: Company) -> Dict[str, Any]:  # pylint: disable=E0202
         arrow_attrs = [
             x
             for x in dir(o)

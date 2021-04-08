@@ -12,7 +12,6 @@ from fractal_python.banking.api import BANKING_ENDPOINT
 from fractal_python.banking.banks import (
     Bank,
     BankConsent,
-    BankEncoder,
     banks_endpoint,
     consents,
     create_bank_consent,

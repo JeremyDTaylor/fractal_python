@@ -25,6 +25,19 @@ SOURCES_RE = "|".join(SOURCES)
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class AccountInformation:
+    r"""Open Banking Read/Write API Account Information such as OBReadAccount6.
+    :attr schema_name: identification scheme name, in a coded form as published
+    in an external list.
+    :attr identification: assigned by an institution to identify an account.
+    This identification is known by the account owner.
+    :attr name: the name or names of the account owner(s) represented at an account
+    level, as displayed by the ASPSP's online channels. Note, the account name is not
+    the product name or the nickname of the account.
+    :attr secondary_identification: econdary identification of the account, as assigned
+    by the account servicing institution. This can be used by building societies to
+    additionally identify accounts with a roll number (in addition to a sort code and
+    account number combination).
+    """
     scheme_name: str
     identification: str
     name: str
@@ -260,8 +273,7 @@ class BankTransaction:
 def retrieve_bank_transactions(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankTransaction], None, None]:
-    r"""
-    Pages of bank transactions are returned for all the bank accounts that have been
+    r"""Retrieves pages of bank transactions for all the bank accounts
     connected to the company.
 
     Transactions can be filtered by bank_id, account_id, from and to.

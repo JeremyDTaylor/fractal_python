@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import json
-from typing import Any, Dict, Generator, List, Optional
+from typing import Generator, List, Optional
 
 import arrow
 import attr
 import deserialize
-from stringcase import camelcase
 
 from fractal_python.api_client import (
     ApiClient,
@@ -37,12 +36,14 @@ def new_bank(
     return Bank(bank_id, name, logo, logo_url)
 
 
-class BankEncoder(json.JSONEncoder):
-    def default(self, o: Bank) -> Dict[str, Any]:
-        return {camelcase(k): v for k, v in o.__dict__.items() if v}
-
-
 def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
+    r"""Retrieves all banks.
+
+    :param client: the client to use for the api call
+    :type client: ApiClient
+    :yield: Page of Banks
+    :rtype: Generator[List[Bank], None, None]
+    """
     yield from get_paged_response(
         client=client,
         company_id=None,
@@ -99,8 +100,7 @@ class BankConsent:
 def retrieve_bank_consents(
     client: ApiClient, bank_id: int, company_id: Optional[str] = None
 ) -> Generator[List[BankConsent], None, None]:
-    r"""
-    Retrieves consents by bank id and company id
+    r"""Retrieves consents by bank id and company id
 
     :param client: the client to use for the api call
     :type client: ApiClient

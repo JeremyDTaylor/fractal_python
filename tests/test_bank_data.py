@@ -10,7 +10,6 @@ from fractal_python.api_client import COMPANY_ID_HEADER, PARTNER_ID_HEADER, ApiC
 from fractal_python.banking import (
     Bank,
     BankConsent,
-    BankEncoder,
     accounts,
     balances,
     banks_endpoint,
@@ -76,14 +75,6 @@ def test_deserialize_bank(valid_bank: Bank):
     )
     assert isinstance(bank, Bank)
     assert bank == valid_bank
-
-
-def test_bank_encoder(valid_bank: Bank):
-    encoder = BankEncoder()
-    bank = encoder.default(valid_bank)
-    assert bank["id"] == valid_bank.id
-    assert bank["name"] == valid_bank.name
-    assert bank["logo"] == valid_bank.logo
 
 
 @pytest.fixture()
