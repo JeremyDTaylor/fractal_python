@@ -17,13 +17,6 @@ class Category:
     name: str
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetCategoriesResponse:
-    links: dict
-    results: List[Category]
-
-
 def retrieve_categories(client: ApiClient) -> Generator[List[Category], None, None]:
     r"""Retrieves pages of all the categories that Fractal currently supports.
     Category id and the category name are returned in the response.
@@ -38,5 +31,5 @@ def retrieve_categories(client: ApiClient) -> Generator[List[Category], None, No
         company_id=None,
         params=None,
         url=categories,
-        cls=GetCategoriesResponse,
+        cls=Category,
     )

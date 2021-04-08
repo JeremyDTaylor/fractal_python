@@ -42,20 +42,13 @@ class BankEncoder(json.JSONEncoder):
         return {camelcase(k): v for k, v in o.__dict__.items() if v}
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetBanksResponse:
-    links: dict
-    results: List[Bank]
-
-
 def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
     yield from get_paged_response(
         client=client,
         company_id=None,
         params=None,
         url=banks_endpoint,
-        cls=GetBanksResponse,
+        cls=Bank,
     )
 
 
@@ -103,13 +96,6 @@ class BankConsent:
     status: str
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetBankConsentsResponse:
-    links: dict
-    results: List[BankConsent]
-
-
 def retrieve_bank_consents(
     client: ApiClient, bank_id: int, company_id: Optional[str] = None
 ) -> Generator[List[BankConsent], None, None]:
@@ -131,7 +117,7 @@ def retrieve_bank_consents(
         company_id=company_id,
         params=[],
         url=url,
-        cls=GetBankConsentsResponse,
+        cls=BankConsent,
     )
 
 

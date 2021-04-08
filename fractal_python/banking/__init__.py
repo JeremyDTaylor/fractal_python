@@ -13,7 +13,6 @@ from fractal_python.banking.banks import (
     Bank,
     BankConsent,
     BankEncoder,
-    GetBanksResponse,
     banks_endpoint,
     consents,
     create_bank_consent,

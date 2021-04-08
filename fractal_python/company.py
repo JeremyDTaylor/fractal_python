@@ -73,13 +73,6 @@ class CompanyEncoder(json.JSONEncoder):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-class GetCompaniesResponse:
-    links: dict
-    results: List[Company]
-
-
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
 class CreateResponse:
     id: str
     message: str
@@ -108,7 +101,7 @@ def get_companies(client: ApiClient, **kwargs) -> Generator[List[Company], None,
             "crn",
         ],
         url=f"{endpoint}",
-        cls=GetCompaniesResponse,
+        cls=Company,
         **kwargs,
     )
 

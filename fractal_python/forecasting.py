@@ -55,13 +55,6 @@ class Forecast:
     name: str
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetForecastsResponse:
-    links: dict
-    results: List[Forecast]
-
-
 def get_forecasts(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[Forecast], None, None]:
@@ -84,7 +77,7 @@ def get_forecasts(
         company_id=company_id,
         params=BANK_ACCOUNT_PARAMS,
         url=forecasts,
-        cls=GetForecastsResponse,
+        cls=Forecast,
         **kwargs
     )
 
@@ -118,13 +111,6 @@ class ForecastedTransaction:
     )
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetForecastedTransactionsResponse:
-    links: dict
-    results: List[ForecastedTransaction]
-
-
 def get_forecasted_transactions(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[ForecastedTransaction], None, None]:
@@ -153,7 +139,7 @@ def get_forecasted_transactions(
         company_id=company_id,
         params=FORECASTED_PARAMS,
         url=transactions,
-        cls=GetForecastedTransactionsResponse,
+        cls=ForecastedTransaction,
         **kwargs
     )
 
@@ -184,13 +170,6 @@ class ForecastedBalance:
     )
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetForecastedBalanceResponse:
-    links: dict
-    results: List[ForecastedBalance]
-
-
 def get_forecasted_balances(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[ForecastedBalance], None, None]:
@@ -219,6 +198,6 @@ def get_forecasted_balances(
         company_id=company_id,
         params=FORECASTED_PARAMS,
         url=balances,
-        cls=GetForecastedBalanceResponse,
+        cls=ForecastedBalance,
         **kwargs
     )

@@ -53,13 +53,6 @@ class BankAccount:
     )
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetBankAccountsResponse:
-    links: dict
-    results: List[BankAccount]
-
-
 def retrieve_bank_accounts(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankAccount], None, None]:
@@ -83,7 +76,7 @@ def retrieve_bank_accounts(
         company_id=company_id,
         params=("bank_id",),
         url=accounts,
-        cls=GetBankAccountsResponse,
+        cls=BankAccount,
         **kwargs
     )
 
@@ -137,13 +130,6 @@ class BankBalance:
     )
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetBankBalancesResponse:
-    links: dict
-    results: List[BankBalance]
-
-
 def retrieve_bank_balances(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankBalance], None, None]:
@@ -172,7 +158,7 @@ def retrieve_bank_balances(
         company_id=company_id,
         params=["bank_id", "account_id", "from", "to"],
         url=balances,
-        cls=GetBankBalancesResponse,
+        cls=BankBalance,
         **kwargs
     )
 
@@ -271,13 +257,6 @@ class BankTransaction:
     )
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetBankTransactionResponse:
-    links: dict
-    results: List[BankTransaction]
-
-
 def retrieve_bank_transactions(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankTransaction], None, None]:
@@ -311,6 +290,6 @@ def retrieve_bank_transactions(
             "to",
         ],
         url=transactions,
-        cls=GetBankTransactionResponse,
+        cls=BankTransaction,
         **kwargs
     )

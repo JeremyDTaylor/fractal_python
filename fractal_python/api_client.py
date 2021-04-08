@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Collection, Dict, Generator, Optional, Type
+from typing import Any, Collection, Dict, Generator, List, Optional, Type
 
 import arrow
 import deserialize
@@ -102,9 +102,9 @@ def _call_api(
 
 def _handle_get_response(response, cls):
     json_response = json.loads(response.text)
-    response = deserialize.deserialize(cls, json_response)
-    next_page = response.links.get("next", None)
-    return response, next_page
+    results = deserialize.deserialize(List[cls], json_response.get("results", None))
+    next_page = json_response.get("links", {}).get("next", None)
+    return results, next_page
 
 
 def get_paged_response(
@@ -128,12 +128,12 @@ def get_paged_response(
         company_id=company_id,
     )
     headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
-    paged_response, next_page = _handle_get_response(response, cls)
-    yield paged_response.results
+    results, next_page = _handle_get_response(response, cls)
+    yield results
     while next_page:
         response = client.call_url(next_page, "GET", call_headers=headers)
-        paged_response, next_page = _handle_get_response(response, cls)
-        yield paged_response.results
+        results, next_page = _handle_get_response(response, cls)
+        yield results
 
 
 def arrow_or_none(value: Any):

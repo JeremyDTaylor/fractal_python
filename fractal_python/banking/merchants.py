@@ -19,13 +19,6 @@ class Merchant:
     address_line: str
 
 
-@attr.s(auto_attribs=True)
-@deserialize.auto_snake()
-class GetMerchantsResponse:
-    links: dict
-    results: List[Merchant]
-
-
 def retrieve_merchants(client: ApiClient) -> Generator[List[Merchant], None, None]:
     r"""Retrieves pages of all the merchants that are currently categorised by Fractal.
     Merchant id and the merchant name are returned in the response.
@@ -40,5 +33,5 @@ def retrieve_merchants(client: ApiClient) -> Generator[List[Merchant], None, Non
         company_id=None,
         params=None,
         url=merchants,
-        cls=GetMerchantsResponse,
+        cls=Merchant,
     )
