@@ -43,7 +43,7 @@ def new_company(
 
 class NewCompanyEncoder(json.JSONEncoder):
     def default(self, o: NewCompany) -> Dict[str, Any]:  # pylint: disable=E0202
-        return {camelcase(k): v for k, v in o.__dict__.items() if v}
+        return {camelcase(key): value for key, value in o.__dict__.items() if value}
 
 
 @attr.s(auto_attribs=True)
