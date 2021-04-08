@@ -25,7 +25,9 @@ SOURCES_RE = "|".join(SOURCES)
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class AccountInformation:
+
     r"""Open Banking Read/Write API Account Information such as OBReadAccount6.
+
     :attr schema_name: identification scheme name, in a coded form as published
     in an external list.
     :attr identification: assigned by an institution to identify an account.

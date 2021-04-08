@@ -63,3 +63,16 @@ repos:
     rev: v1.8.0
     hooks:
     - id: darglint
+
+  - repo: https://github.com/executablebooks/mdformat
+    rev: 0.6.4
+    hooks:
+    - id: mdformat
+      additional_dependencies:
+      - mdformat-gfm
+      - mdformat-black
+
+  - repo: https://github.com/markdownlint/markdownlint
+    rev: v0.11.0
+    hooks:
+      - id: markdownlint

@@ -1,8 +1,8 @@
 ### Environment
 
-*  fractal_python version:
-*  python version:
-*  Operating System:
+- fractal_python version:
+- python version:
+- Operating System:
 
 ### Description
 
