@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 """Fractal Banking API service."""
 from fractal_python.banking.accounts import (
+    accounts,
+    balances,
     retrieve_bank_accounts,
     retrieve_bank_balances,
     retrieve_bank_transactions,
+    transactions,
 )
+from fractal_python.banking.api import BANKING_ENDPOINT
 from fractal_python.banking.banks import (
     Bank,
     BankConsent,
     BankEncoder,
     GetBanksResponse,
+    banks_endpoint,
+    consents,
     create_bank_consent,
     delete_bank_consent,
     new_bank,

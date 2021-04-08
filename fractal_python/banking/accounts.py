@@ -170,12 +170,7 @@ def retrieve_bank_balances(
     yield from get_paged_response(
         client=client,
         company_id=company_id,
-        params=[
-            "bank_id",
-            "account_id",
-            "from",
-            "to",
-        ],
+        params=["bank_id", "account_id", "from", "to"],
         url=balances,
         cls=GetBankBalancesResponse,
         **kwargs

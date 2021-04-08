@@ -8,12 +8,15 @@ install:
     - pip install -U virtualenv tox-travis
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then pip install codecov ; fi
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then pip install coveralls -e . ; fi
+before_script:
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then bash <(curl -Ls https://coverage.codacy.com/get.sh) download; fi
 script:
     - tox
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coverage run --source=fractal_python setup.py test; fi
 after_success:
     - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then coveralls; fi
-    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then codecov ; fi
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then codecov; fi
+    - if [ "$TRAVIS_PYTHON_VERSION" = "3.9" ]; then bash <(curl -Ls https://coverage.codacy.com/get.sh); fi
 deploy:
   provider: pypi
   distributions: sdist bdist_wheel

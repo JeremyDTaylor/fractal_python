@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+import json
 import uuid
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Type
 
 import deserialize  # type: ignore
 import pytest
@@ -10,6 +11,10 @@ from fractal_python.banking import (
     Bank,
     BankConsent,
     BankEncoder,
+    accounts,
+    balances,
+    banks_endpoint,
+    consents,
     create_bank_consent,
     delete_bank_consent,
     new_bank,
@@ -19,10 +24,30 @@ from fractal_python.banking import (
     retrieve_bank_consents,
     retrieve_bank_transactions,
     retrieve_banks,
+    transactions,
 )
-from tests.test_api_client import make_sandbox
+from fractal_python.banking.accounts import BankAccount, BankBalance, BankTransaction
+from tests.test_api_client import TOKEN_RESPONSE
 
-GET_BANKS_1_PAGE_1: Dict[str, Any] = {
+TEST_BASE_URL = "http://test"
+ACCOUNTS_ENDPOINT = f"{TEST_BASE_URL}{accounts}"
+BALANCES_ENDPOINT = f"{TEST_BASE_URL}{balances}"
+BANKS_ENDPOINT = f"{TEST_BASE_URL}{banks_endpoint}"
+TRANSACTIONS_ENDPOINT = f"{TEST_BASE_URL}{transactions}"
+
+BANK_ID = 6
+COMPANY_ID = "CompanyID1234"
+COMPANY_REQUEST_HEADERS = {
+    COMPANY_ID_HEADER: COMPANY_ID,
+    PARTNER_ID_HEADER: "sandbox-partner",
+}
+ACCOUNTS_PAGE_1_NEXT_URL = f"{ACCOUNTS_ENDPOINT}?pageId=2"
+BALANCES_PAGE_1_NEXT_URL = f"{BALANCES_ENDPOINT}?bankId={BANK_ID}&pageId=2"
+BANKS_PAGE_1_NEXT_URL = f"{BANKS_ENDPOINT}?pageId=2"
+CONSENTS_PAGE_1_NEXT_URL = f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}?pageId=2"
+TRANSACTIONS_PAGE_1_NEXT_URL = f"{TRANSACTIONS_ENDPOINT}?bankId={BANK_ID}&pageId=2"
+
+BANKS_1_PAGE_1: Dict[str, Any] = {
     "results": [
         {
             "id": 1,
@@ -62,18 +87,24 @@ def test_bank_encoder(valid_bank: Bank):
 
 
 @pytest.fixture()
-def test_client(requests_mock) -> ApiClient:
-    requests_mock.register_uri("GET", "/banking/v2/banks", json=GET_BANKS_1_PAGE_1)
-    return make_sandbox(requests_mock)
+def mock_client(requests_mock) -> ApiClient:
+    requests_mock.register_uri("POST", "/token", text=json.dumps(TOKEN_RESPONSE))
+    return ApiClient(f"{TEST_BASE_URL}", "sandbox-key", "sandbox-partner")
 
 
-def test_retrieve_banks_single_page(test_client: ApiClient):
+@pytest.fixture()
+def banks_client(requests_mock, mock_client) -> ApiClient:
+    requests_mock.register_uri("GET", f"{BANKS_ENDPOINT}", json=BANKS_1_PAGE_1)
+    return mock_client
+
+
+def test_retrieve_banks_single_page(banks_client: ApiClient):
     banks: List[Bank] = [
-        item for sublist in retrieve_banks(test_client) for item in sublist
+        item for sublist in retrieve_banks(banks_client) for item in sublist
     ]
-    assert len(banks) == len(GET_BANKS_1_PAGE_1["results"])
+    assert len(banks) == len(BANKS_1_PAGE_1["results"])
     for index, bank in enumerate(banks):
-        expected: Dict[str, str] = GET_BANKS_1_PAGE_1["results"][index]
+        expected: Dict[str, str] = BANKS_1_PAGE_1["results"][index]
         assert expected["id"] == bank.id
         assert expected["logo"] == bank.logo
         assert expected["name"] == bank.name
@@ -87,46 +118,50 @@ GET_BANKS_2_PAGE_1 = {
             "logo": "data:image/svg+xml;base64,<link>",
         },
     ],
-    "links": {"next": "mock://test/banking/v2/banks?pageId=2"},
+    "links": {"next": BANKS_PAGE_1_NEXT_URL},
 }
 
 
 @pytest.fixture()
-def test_client_paged(requests_mock, test_client) -> ApiClient:
-    requests_mock.register_uri("GET", "/banking/v2/banks", json=GET_BANKS_2_PAGE_1)
+def test_client_paged(requests_mock, mock_client) -> ApiClient:
+    requests_mock.register_uri("GET", f"{BANKS_ENDPOINT}", json=GET_BANKS_2_PAGE_1)
+    requests_mock.register_uri("GET", BANKS_PAGE_1_NEXT_URL, json=BANKS_1_PAGE_1)
     requests_mock.register_uri(
-        "GET", "/banking/v2/banks?pageId=2", json=GET_BANKS_1_PAGE_1
-    )
-    requests_mock.register_uri(
-        "GET", "/banking/v2/banks/6/consents", json=GET_ALL_BANK_6_CONSENTS_2_PAGE
+        "GET",
+        f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}",
+        json=GET_ALL_BANK_CONSENTS_2_PAGE,
     )
     requests_mock.register_uri(
         "GET",
-        "/banking/v2/banks/6/consents?pageId=2",
-        json=GET_ALL_BANK_6_CONSENTS_1_PAGE,
+        CONSENTS_PAGE_1_NEXT_URL,
+        json=GET_ALL_BANK_CONSENTS_1_PAGE,
     )
-    return test_client
+    return mock_client
 
 
 def test_retrieve_banks_multiple_page(test_client_paged: ApiClient):
-    banks = [item for sublist in retrieve_banks(test_client_paged) for item in sublist]
-    assert len(banks) == 8
+    _count_paged_items(
+        client=test_client_paged,
+        call=retrieve_banks,
+        count=8,
+        cls=Bank,
+    )
 
 
-POST_BANK_6_CONSENT = {
+POST_BANK_CONSENT = {
     "signinUrl": "Bank's signinUrl",
     "consentId": "ConsentID123",
-    "bankId": 6,
+    "bankId": BANK_ID,
     "type": "ACCOUNT",
     "permission": "ReadAllBankData",
 }
 
 
-def test_create_bank_consent(requests_mock, test_client):
+def test_create_bank_consent(requests_mock, mock_client):
     requests_mock.register_uri(
-        "POST", "/banking/v2/banks/6/consents", json=POST_BANK_6_CONSENT
+        "POST", f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}", json=POST_BANK_CONSENT
     )
-    consent = create_bank_consent(test_client, 6, "redirect", "companyId")
+    consent = create_bank_consent(mock_client, 6, "redirect", "companyId")
     assert consent.bank_id == 6
     assert consent.signin_url == "Bank's signinUrl"
     assert consent.consent_id == "ConsentID123"
@@ -134,13 +169,13 @@ def test_create_bank_consent(requests_mock, test_client):
     assert consent.permission == "ReadAllBankData"
 
 
-GET_ALL_BANK_6_CONSENTS_1_PAGE = {
+GET_ALL_BANK_CONSENTS_1_PAGE = {
     "results": [
         {
-            "companyId": "CompanyID1234",
+            "companyId": COMPANY_ID,
             "permission": "READALLBANKDATA",
             "consentId": "ConsentID12",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "dateCreated": "2020-10-28T18:26:29.699Z",
             "consentType": "Account",
             "status": "AwaitingAuthorisation",
@@ -150,7 +185,7 @@ GET_ALL_BANK_6_CONSENTS_1_PAGE = {
             "expiryDate": "2021-01-06T17:28:14.759Z",
             "permission": "READACCOUNTSDETAIL",
             "consentId": "ConsentID34",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "dateCreated": "2020-10-28T18:24:28.707Z",
             "authorisedDate": "2020-10-08T17:28:14.759Z",
             "consentType": "Account",
@@ -160,7 +195,7 @@ GET_ALL_BANK_6_CONSENTS_1_PAGE = {
             "companyId": "CompanyID9878",
             "permission": "READALLBANKDATA",
             "consentId": "ConsentID98",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "dateCreated": "2020-10-28T18:24:28.707Z",
             "consentType": "Account",
             "status": "Rejected",
@@ -170,62 +205,67 @@ GET_ALL_BANK_6_CONSENTS_1_PAGE = {
 }
 
 
-def test_retrieve_all_bank_consents_1_page(requests_mock, test_client):
+def test_retrieve_all_bank_consents_1_page(requests_mock, mock_client):
     requests_mock.register_uri(
-        "GET", "/banking/v2/banks/6/consents", json=GET_ALL_BANK_6_CONSENTS_1_PAGE
+        "GET",
+        f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}",
+        json=GET_ALL_BANK_CONSENTS_1_PAGE,
     )
-    consents = [
-        item
-        for sublist in retrieve_bank_consents(test_client, bank_id=6)
-        for item in sublist
-    ]
-    assert len(consents) == 3
+    _count_paged_items(
+        client=mock_client,
+        call=retrieve_bank_consents,
+        count=3,
+        cls=BankConsent,
+        bank_id=BANK_ID,
+    )
 
 
-def test_retrieve_all_bank_consents_empty_page(test_client: ApiClient, requests_mock):
+def test_retrieve_all_bank_consents_empty_page(mock_client: ApiClient, requests_mock):
     requests_mock.register_uri(
-        "GET", "/banking/v2/banks/6/consents", json=dict(results=[], links={})
+        "GET", f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}", json=dict(results=[], links={})
     )
-    consents = [
-        item
-        for sublist in retrieve_bank_consents(test_client, bank_id=6)
-        for item in sublist
-    ]
-    assert len(consents) == 0
+    _count_paged_items(
+        client=mock_client,
+        call=retrieve_bank_consents,
+        count=0,
+        cls=BankConsent,
+        bank_id=BANK_ID,
+    )
 
 
-GET_ALL_BANK_6_CONSENTS_2_PAGE = {
+GET_ALL_BANK_CONSENTS_2_PAGE = {
     "results": [
         {
             "companyId": "CompanyID98782",
             "permission": "READALLBANKDATA",
             "consentId": "ConsentID982",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "dateCreated": "2020-10-29T18:24:28.707Z",
             "consentType": "Account",
             "status": "Rejected",
         }
     ],
-    "links": {"next": "mock://test/banking/v2/banks/6/consents?pageId=2"},
+    "links": {"next": CONSENTS_PAGE_1_NEXT_URL},
 }
 
 
 def test_retrieve_all_bank_consents_multiple_page(test_client_paged: ApiClient):
-    consents = [
-        item
-        for sublist in retrieve_bank_consents(test_client_paged, bank_id=6)
-        for item in sublist
-    ]
-    assert len(consents) == 4
+    _count_paged_items(
+        client=test_client_paged,
+        call=retrieve_bank_consents,
+        count=4,
+        cls=BankConsent,
+        bank_id=BANK_ID,
+    )
 
 
-GET_BY_ID_BANK_6_CONSENTS_1_PAGE = {
+GET_BY_ID_BANK_CONSENTS_1_PAGE = {
     "results": [
         {
-            "companyId": "CompanyID1234",
+            "companyId": COMPANY_ID,
             "permission": "READALLBANKDATA",
             "consentId": "ConsentID12",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "dateCreated": "2020-10-28T18:26:29.699Z",
             "consentType": "Account",
             "status": "AwaitingAuthorisation",
@@ -236,43 +276,39 @@ GET_BY_ID_BANK_6_CONSENTS_1_PAGE = {
 
 
 @pytest.fixture()
-def test_client_company_id(requests_mock) -> ApiClient:
-    request_headers = {COMPANY_ID_HEADER: "CompanyID1234"}
+def test_client_company_id(requests_mock, mock_client: ApiClient) -> ApiClient:
     requests_mock.register_uri(
         "GET",
-        "/banking/v2/banks/6/consents",
-        request_headers=request_headers,
-        json=GET_BY_ID_BANK_6_CONSENTS_1_PAGE,
+        f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}",
+        request_headers=COMPANY_REQUEST_HEADERS,
+        json=GET_BY_ID_BANK_CONSENTS_1_PAGE,
     )
-    return make_sandbox(requests_mock)
+    return mock_client
 
 
 def test_retrieve_bank_consents_by_company_id(
     test_client_company_id: ApiClient, requests_mock
 ):
-    company_id = "CompanyID1234"
-    consents: List[BankConsent] = [
-        item
-        for sublist in retrieve_bank_consents(
-            test_client_company_id, bank_id=6, company_id=company_id
-        )
-        for item in sublist
-    ]
-    assert len(consents) == 1
-    assert consents[0].company_id == company_id
+    _count_paged_items(
+        client=test_client_company_id,
+        call=retrieve_bank_consents,
+        count=1,
+        cls=BankConsent,
+        company_id=COMPANY_ID,
+        bank_id=BANK_ID,
+    )
 
 
 @pytest.fixture()
-def put_consent_client(requests_mock) -> ApiClient:
-    request_headers = {COMPANY_ID_HEADER: "CompanyID1234"}
+def put_consent_client(requests_mock, mock_client) -> ApiClient:
     requests_mock.register_uri(
         "PUT",
-        "/banking/v2/banks/6/consents/ConsentID12",
-        request_headers=request_headers,
-        json=GET_BY_ID_BANK_6_CONSENTS_1_PAGE,
+        f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}/ConsentID12",
+        request_headers=COMPANY_REQUEST_HEADERS,
+        json=GET_BY_ID_BANK_CONSENTS_1_PAGE,
         status_code=204,
     )
-    return make_sandbox(requests_mock)
+    return mock_client
 
 
 def test_put_bank_consent(put_consent_client):
@@ -281,15 +317,15 @@ def test_put_bank_consent(put_consent_client):
         code="code",
         id_token=str(uuid.uuid4()),
         state="state",
-        bank_id=6,
+        bank_id=BANK_ID,
         consent_id="ConsentID12",
-        company_id="CompanyID1234",
+        company_id=COMPANY_ID,
     )
 
 
 def test_put_bank_consent_400(put_consent_client, requests_mock):
     requests_mock.register_uri(
-        "PUT", "/banking/v2/banks/6/consents/Consent400", status_code=400
+        "PUT", f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}/Consent400", status_code=400
     )
     with pytest.raises(AssertionError):
         put_bank_consent(
@@ -297,15 +333,15 @@ def test_put_bank_consent_400(put_consent_client, requests_mock):
             code="code",
             id_token="id_token",
             state="state",
-            bank_id=6,
+            bank_id=BANK_ID,
             consent_id="Consent400",
-            company_id="CompanyID1234",
+            company_id=COMPANY_ID,
         )
 
 
 def test_put_bank_consent_404(put_consent_client, requests_mock):
     requests_mock.register_uri(
-        "PUT", "/banking/v2/banks/6/consents/Consent404", status_code=404
+        "PUT", f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}/Consent404", status_code=404
     )
     with pytest.raises(AssertionError):
         put_bank_consent(
@@ -313,15 +349,15 @@ def test_put_bank_consent_404(put_consent_client, requests_mock):
             code="code",
             id_token="id_token",
             state="state",
-            bank_id=6,
+            bank_id=BANK_ID,
             consent_id="Consent404",
-            company_id="CompanyID1234",
+            company_id=COMPANY_ID,
         )
 
 
 def test_put_bank_consent_502(put_consent_client, requests_mock):
     requests_mock.register_uri(
-        "PUT", "/banking/v2/banks/6/consents/Consent502", status_code=502
+        "PUT", f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}/Consent502", status_code=502
     )
     with pytest.raises(AssertionError):
         put_bank_consent(
@@ -329,43 +365,42 @@ def test_put_bank_consent_502(put_consent_client, requests_mock):
             code="code",
             id_token="id_token",
             state="state",
-            bank_id=6,
+            bank_id=BANK_ID,
             consent_id="Consent502",
-            company_id="CompanyID1234",
+            company_id=COMPANY_ID,
         )
 
 
 @pytest.fixture()
-def delete_consent_client(requests_mock) -> ApiClient:
-    request_headers = {COMPANY_ID_HEADER: "CompanyID1234"}
+def delete_consent_client(requests_mock, mock_client: ApiClient) -> ApiClient:
     requests_mock.register_uri(
         "DELETE",
-        "/banking/v2/banks/6/consents/ConsentID12",
-        request_headers=request_headers,
+        f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}/ConsentID12",
+        request_headers=COMPANY_REQUEST_HEADERS,
         status_code=202,
     )
-    return make_sandbox(requests_mock)
+    return mock_client
 
 
 def test_delete_bank_consent(delete_consent_client):
     delete_bank_consent(
         delete_consent_client,
-        bank_id=6,
+        bank_id=BANK_ID,
         consent_id="ConsentID12",
-        company_id="CompanyID1234",
+        company_id=COMPANY_ID,
     )
 
 
-def test_delete_bank_consent_404(delete_consent_client, requests_mock):
+def test_delete_bank_consent_404(delete_consent_client: ApiClient, requests_mock):
     requests_mock.register_uri(
-        "DELETE", "/banking/v2/banks/6/consents/Consent404", status_code=404
+        "DELETE", f"{BANKS_ENDPOINT}/{BANK_ID}/{consents}/Consent404", status_code=404
     )
     with pytest.raises(AssertionError):
         delete_bank_consent(
             delete_consent_client,
-            bank_id=6,
+            bank_id=BANK_ID,
             consent_id="Consent404",
-            company_id="CompanyID1234",
+            company_id=COMPANY_ID,
         )
 
 
@@ -373,7 +408,7 @@ GET_BANK_ACCOUNTS = {
     "results": [
         {
             "id": "accountId1234",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "currency": "GBP",
             "nickname": "Business Account",
             "account": [
@@ -389,7 +424,7 @@ GET_BANK_ACCOUNTS = {
         },
         {
             "id": "accountId5678",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "currency": "GBP",
             "nickname": "Debit Account - NatWest - Demo",
             "account": [
@@ -409,36 +444,32 @@ GET_BANK_ACCOUNTS = {
 
 
 @pytest.fixture()
-def accounts_client(requests_mock) -> ApiClient:
-    request_headers = {
-        COMPANY_ID_HEADER: "CompanyID1234",
-        PARTNER_ID_HEADER: "sandbox-partner",
-    }
+def accounts_client(requests_mock, mock_client) -> ApiClient:
     requests_mock.register_uri(
         "GET",
-        "/banking/v2/accounts?bankId=6",
+        f"{ACCOUNTS_ENDPOINT}?bankId={BANK_ID}",
         json=GET_BANK_ACCOUNTS,
-        request_headers=request_headers,
+        request_headers=COMPANY_REQUEST_HEADERS,
     )
-    return make_sandbox(requests_mock)
+    return mock_client
 
 
 def test_retrieve_all_bank_accounts_1_page(accounts_client):
-    accounts = [
-        item
-        for sublist in retrieve_bank_accounts(
-            accounts_client, company_id="CompanyID1234", bank_id=6
-        )
-        for item in sublist
-    ]
-    assert len(accounts) == 2
+    _count_paged_items(
+        client=accounts_client,
+        call=retrieve_bank_accounts,
+        count=2,
+        cls=BankAccount,
+        company_id=COMPANY_ID,
+        bank_id=BANK_ID,
+    )
 
 
 GET_BANK_ACCOUNTS_PAGE_1 = {
     "results": [
         {
             "id": "accountId12342",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "currency": "GBP",
             "nickname": "Business Account",
             "account": [
@@ -454,7 +485,7 @@ GET_BANK_ACCOUNTS_PAGE_1 = {
         },
         {
             "id": "accountId56782",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "currency": "GBP",
             "nickname": "Debit Account - NatWest - Demo",
             "account": [
@@ -469,44 +500,38 @@ GET_BANK_ACCOUNTS_PAGE_1 = {
             "source": "OPENBANKING",
         },
     ],
-    "links": {"next": "mock://test/banking/v2/accounts?pageId=2"},
+    "links": {"next": ACCOUNTS_PAGE_1_NEXT_URL},
 }
 
 
 @pytest.fixture()
-def paged_accounts_client(requests_mock) -> ApiClient:
-    request_headers = {
-        COMPANY_ID_HEADER: "CompanyID1234",
-        PARTNER_ID_HEADER: "sandbox-partner",
-    }
+def paged_accounts_client(requests_mock, mock_client) -> ApiClient:
     requests_mock.register_uri(
         "GET",
-        "/banking/v2/accounts?bankId=6",
+        f"{ACCOUNTS_ENDPOINT}",
         json=GET_BANK_ACCOUNTS_PAGE_1,
-        request_headers=request_headers,
+        request_headers=COMPANY_REQUEST_HEADERS,
     )
-    requests_mock.register_uri(
-        "GET", "mock://test/banking/v2/accounts?pageId=2", json=GET_BANK_ACCOUNTS
-    )
-    return make_sandbox(requests_mock)
+    requests_mock.register_uri("GET", ACCOUNTS_PAGE_1_NEXT_URL, json=GET_BANK_ACCOUNTS)
+    return mock_client
 
 
 def test_retrieve_all_bank_accounts_2_pages(paged_accounts_client):
-    accounts = [
-        item
-        for sublist in retrieve_bank_accounts(
-            paged_accounts_client, bank_id=6, company_id="CompanyID1234"
-        )
-        for item in sublist
-    ]
-    assert len(accounts) == 4
+    _count_paged_items(
+        client=paged_accounts_client,
+        call=retrieve_bank_accounts,
+        count=4,
+        cls=BankAccount,
+        company_id=COMPANY_ID,
+        bank_id=BANK_ID,
+    )
 
 
 GET_BANK_BALANCES_RESPONSE = {
     "results": [
         {
             "id": "balanceId1234",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "accountId": "accountId1357",
             "date": "2020-10-05T00:00Z",
             "amount": "11477.35",
@@ -548,7 +573,7 @@ GET_BANK_BALANCES_RESPONSE_PAGED = {
     "results": [
         {
             "id": "balanceId12342",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "accountId": "accountId13572",
             "date": "2020-10-05T00:00Z",
             "amount": "11477.35",
@@ -583,47 +608,43 @@ GET_BANK_BALANCES_RESPONSE_PAGED = {
             "source": "MANUALIMPORT",
         },
     ],
-    "links": {"next": "mock://test/banking/v2/balances?bankId=6&pageId=2"},
+    "links": {"next": BALANCES_PAGE_1_NEXT_URL},
 }
 
 
 @pytest.fixture()
-def balances_client(requests_mock) -> ApiClient:
-    request_headers = {
-        COMPANY_ID_HEADER: "CompanyID1234",
-        PARTNER_ID_HEADER: "sandbox-partner",
-    }
+def balances_client(requests_mock, mock_client) -> ApiClient:
     requests_mock.register_uri(
         "GET",
-        "/banking/v2/balances?bankId=6",
+        f"{BALANCES_ENDPOINT}?bankId={BANK_ID}",
         json=GET_BANK_BALANCES_RESPONSE_PAGED,
-        request_headers=request_headers,
+        request_headers=COMPANY_REQUEST_HEADERS,
     )
     requests_mock.register_uri(
         "GET",
-        "/banking/v2/balances?bankId=6&pageId=2",
+        BALANCES_PAGE_1_NEXT_URL,
         json=GET_BANK_BALANCES_RESPONSE,
-        request_headers=request_headers,
+        request_headers=COMPANY_REQUEST_HEADERS,
     )
-    return make_sandbox(requests_mock)
+    return mock_client
 
 
-def test_retrieve_bank_6_balances(balances_client: ApiClient):
-    accounts = [
-        item
-        for sublist in retrieve_bank_balances(
-            client=balances_client, bank_id=6, company_id="CompanyID1234"
-        )
-        for item in sublist
-    ]
-    assert len(accounts) == 6
+def test_retrieve_bank_balances(balances_client: ApiClient):
+    _count_paged_items(
+        client=balances_client,
+        call=retrieve_bank_balances,
+        count=6,
+        cls=BankBalance,
+        company_id=COMPANY_ID,
+        bank_id=BANK_ID,
+    )
 
 
 GET_BANK_TRANSACTIONS = {
     "results": [
         {
             "id": "transactionId1357",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "accountId": "accountId5555",
             "bookingDate": "2020-10-16T00:00Z",
             "valueDate": "2020-10-16T00:00Z",
@@ -684,7 +705,7 @@ GET_BANK_TRANSACTIONS_PAGED = {
     "results": [
         {
             "id": "transactionId13572",
-            "bankId": 6,
+            "bankId": BANK_ID,
             "accountId": "accountId5555",
             "bookingDate": "2020-10-16T00:00Z",
             "valueDate": "2020-10-16T00:00Z",
@@ -737,37 +758,42 @@ GET_BANK_TRANSACTIONS_PAGED = {
             "source": "OPENBANKING",
         },
     ],
-    "links": {"next": "mock://test/banking/v2/transactions?bankId=6&pageId=2"},
+    "links": {"next": TRANSACTIONS_PAGE_1_NEXT_URL},
 }
 
 
 @pytest.fixture()
-def transactions_client(requests_mock) -> ApiClient:
-    request_headers = {
-        COMPANY_ID_HEADER: "CompanyID1234",
-        PARTNER_ID_HEADER: "sandbox-partner",
-    }
+def transactions_client(requests_mock, mock_client) -> ApiClient:
     requests_mock.register_uri(
         "GET",
-        "/banking/v2/transactions?bankId=6",
+        f"{TRANSACTIONS_ENDPOINT}?bankId={BANK_ID}",
         json=GET_BANK_TRANSACTIONS_PAGED,
-        request_headers=request_headers,
+        request_headers=COMPANY_REQUEST_HEADERS,
     )
     requests_mock.register_uri(
         "GET",
-        "/banking/v2/transactions?bankId=6&pageId=2",
+        TRANSACTIONS_PAGE_1_NEXT_URL,
         json=GET_BANK_TRANSACTIONS,
-        request_headers=request_headers,
+        request_headers=COMPANY_REQUEST_HEADERS,
     )
-    return make_sandbox(requests_mock)
+    return mock_client
 
 
-def test_retrieve_bank_6_transactions(transactions_client: ApiClient):
-    accounts = [
-        item
-        for sublist in retrieve_bank_transactions(
-            client=transactions_client, bank_id=6, company_id="CompanyID1234"
-        )
-        for item in sublist
-    ]
-    assert len(accounts) == 4
+def test_retrieve_bank_transactions(transactions_client: ApiClient):
+    _count_paged_items(
+        client=transactions_client,
+        call=retrieve_bank_transactions,
+        count=4,
+        cls=BankTransaction,
+        company_id=COMPANY_ID,
+        bank_id=BANK_ID,
+    )
+
+
+def _count_paged_items(
+    client: ApiClient, call: Callable, count: int, cls: Type, **kwargs
+):
+    items = [item for sublist in call(client, **kwargs) for item in sublist]
+    assert len(items) == count
+    for item in items:
+        assert isinstance(item, cls)

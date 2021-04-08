@@ -15,7 +15,7 @@ from fractal_python.api_client import (
 )
 from fractal_python.banking.api import BANKING_ENDPOINT
 
-banks = BANKING_ENDPOINT + "/banks"
+banks_endpoint = BANKING_ENDPOINT + "/banks"
 consents = "consents"
 
 
@@ -51,7 +51,11 @@ class GetBanksResponse:
 
 def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
     yield from get_paged_response(
-        client=client, company_id=None, params=None, url=banks, cls=GetBanksResponse
+        client=client,
+        company_id=None,
+        params=None,
+        url=banks_endpoint,
+        cls=GetBanksResponse,
     )
 
 
@@ -70,7 +74,7 @@ def create_bank_consent(
 ) -> CreateBankConsentResponse:
     response = _call_api(
         client=client,
-        url=f"{banks}/{bank_id}/{consents}",
+        url=f"{banks_endpoint}/{bank_id}/{consents}",
         method="POST",
         body=json.dumps(dict(redirect=redirect)),
         company_id=company_id,
@@ -121,7 +125,7 @@ def retrieve_bank_consents(
     :yield: Page of Bank Consents
     :rtype: Generator[List[BankConsent], None, None]
     """
-    url = f"{banks}/{bank_id}/{consents}"
+    url = f"{banks_endpoint}/{bank_id}/{consents}"
     yield from get_paged_response(
         client=client,
         company_id=company_id,
@@ -162,7 +166,7 @@ def put_bank_consent(
     payload = {"code": code, "id_token": id_token, "state": state}
     response = _call_api(
         client,
-        f"{banks}/{bank_id}/{consents}/{consent_id}",
+        f"{banks_endpoint}/{bank_id}/{consents}/{consent_id}",
         "PUT",
         body=json.dumps(payload),
         company_id=company_id,
@@ -192,7 +196,7 @@ def delete_bank_consent(
     """
     response = _call_api(
         client,
-        f"{banks}/{bank_id}/{consents}/{consent_id}",
+        f"{banks_endpoint}/{bank_id}/{consents}/{consent_id}",
         "DELETE",
         company_id=company_id,
     )
