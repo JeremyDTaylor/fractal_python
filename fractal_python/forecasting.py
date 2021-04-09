@@ -11,7 +11,7 @@ from fractal_python.api_client import (
     _get_paged_response,
     _money_amount,
 )
-from fractal_python.banking.accounts import BALANCE_TYPES_RE, AccountEntity, MoneyAmount
+from fractal_python.banking.accounts import BALANCE_TYPES_RE
 
 BANK_ACCOUNT_PARAMS = [
     "bank_id",
@@ -35,6 +35,19 @@ transactions = "%s/transactions" % FORECASTING
 balances = "%s/balances" % FORECASTING
 SOURCES = ("MODEL", "MANUALIMPORT")
 SOURCES_RE = "|".join(SOURCES)
+
+
+@attr.s(auto_attribs=True)
+class AccountEntity:
+    r"""A uniquely identifiable Account related entity.
+
+    :attr id: unique within the bank at least identifier.
+    :attr bank_id: unique id of the bank that operates the account.
+    :attr account_id: account that this balance is for.
+    """
+    id: str
+    bank_id: int
+    account_id: str
 
 
 @attr.s(auto_attribs=True)
@@ -95,9 +108,28 @@ class ForecastEntity(AccountEntity):
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-@deserialize.parser("value_date", _arrow_or_none)
 @deserialize.parser("amount", _money_amount)
-class ForecastedTransaction(ForecastEntity):
+class ForecastedAmount:
+    r"""Amount with currency and credit/debit.
+
+    :attr currency: the currency of the account.
+    :attr amount: decimal amount
+    :attr type: either DEBIT or CREDIT
+    """
+    currency: str
+    amount: Decimal
+    type: str = attr.ib(
+        validator=[
+            attr.validators.instance_of(str),
+            attr.validators.matches_re(BALANCE_TYPES_RE),
+        ]
+    )
+
+
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
+@deserialize.parser("value_date", _arrow_or_none)
+class ForecastedTransaction(ForecastEntity, ForecastedAmount):
     r"""Forecasted Transaction on a Bank Account.
 
     :attr value_date: forecast value date
@@ -110,14 +142,6 @@ class ForecastedTransaction(ForecastEntity):
     :attr source: model or user
     """
     value_date: arrow.Arrow
-    currency: str
-    amount: Decimal
-    type: str = attr.ib(
-        validator=[
-            attr.validators.instance_of(str),
-            attr.validators.matches_re(BALANCE_TYPES_RE),
-        ]
-    )
     merchant: str
     category: str
     reasons: str
@@ -164,7 +188,7 @@ def get_forecasted_transactions(
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 @deserialize.parser("date", _arrow_or_none)
-class ForecastedBalance(ForecastEntity, MoneyAmount):
+class ForecastedBalance(ForecastEntity, ForecastedAmount):
     r"""Forecasted Balance of a Bank Account.
 
     :attr date: forecast balance date

@@ -119,6 +119,8 @@ BALANCE_TYPES = ("DEBIT", "CREDIT")
 BALANCE_TYPES_RE = "|".join(BALANCE_TYPES)
 
 
+@attr.s(auto_attribs=True)
+@deserialize.auto_snake()
 @deserialize.parser("amount", _money_amount)
 class MoneyAmount:
     r"""Amount with currency and credit/debit.
@@ -137,6 +139,7 @@ class MoneyAmount:
     )
 
 
+@attr.s(auto_attribs=True)
 class AccountEntity:
     r"""A uniquely identifiable Account related entity.
 
