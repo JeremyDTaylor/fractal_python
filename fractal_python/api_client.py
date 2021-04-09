@@ -43,14 +43,7 @@ class ApiClient:
         }
         self.expires_at = arrow.now().shift(seconds=-30)
 
-    def call_api(
-        self,
-        resource_path: str,
-        method: str,
-        query_params: Optional[Dict[str, Any]] = None,
-        body: Optional[str] = None,
-        call_headers: Optional[Dict[str, str]] = None,
-    ) -> requests.Response:
+    def call_api(self, resource_path: str, method: str, **kwargs) -> requests.Response:
         r"""Call the Fractal API.
 
         Makes RESTful calls to endpoints.
@@ -59,32 +52,20 @@ class ApiClient:
         :type resource_path: str
         :param method: GET, DELETE, PUT, POST
         :type method: str
-        :param query_params: (optional) dictionary of query parameters
-        :type query_params: Optional[Dict[str, Any]]
-        :param body: (optional) payload
-        :type body: Optional[str]
-        :param call_headers: optional headers usually company id
-        :type call_headers: Optional[Dict[str, str]]
+        :param **kwargs:  See below
         :return: response
         :rtype: requests.Response
+
+        :Keyword Arguments:
+
+        *params* (optional) dictionary of query parameters
+        *data* (optional) payload
+        *headers* optional headers usually company id
         """
         url = self.base_url + resource_path
-        return self.call_url(
-            url=url,
-            method=method,
-            query_params=query_params,
-            body=body,
-            call_headers=call_headers,
-        )
+        return self.call_url(url=url, method=method, **kwargs)
 
-    def call_url(
-        self,
-        url: str,
-        method: str,
-        query_params: Optional[Dict[str, Any]] = None,
-        body: Optional[str] = None,
-        call_headers: Optional[Dict[str, str]] = None,
-    ) -> requests.Response:
+    def call_url(self, url: str, method: str, **kwargs) -> requests.Response:
         r"""Call a Fractal API URL.
 
         Often used to get next page.
@@ -93,21 +74,19 @@ class ApiClient:
         :type url: str
         :param method: GET, DELETE, PUT, POST
         :type method: str
-        :param query_params: (optional) dictionary of query parameters
-        :type query_params: Optional[Dict[str, Any]]
-        :param body: (optional) payload
-        :type body: Optional[str]
-        :param call_headers: optional headers usually company id
-        :type call_headers: Optional[Dict[str, str]]
+        :param **kwargs:  See below
         :return: response
         :rtype: requests.Response
+
+        :Keyword Arguments:
+
+        *params* (optional) dictionary of query parameters
+        *data* (optional) payload
+        *headers* optional headers usually company id
         """
         self._authorise()
-        call_headers = call_headers or {}
-        call_headers.update(self.headers)
-        return requests.request(
-            method, url, params=query_params, headers=call_headers, data=body
-        )
+        kwargs.setdefault("headers", {}).update(self.headers)
+        return requests.request(method, url, **kwargs)
 
     def _authorise(self):
         now = arrow.now()
@@ -164,7 +143,7 @@ def _call_api(
 ) -> requests.Response:
     headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
     response: requests.Response = client.call_api(
-        url, method, query_params=query_params, body=body, call_headers=headers
+        url, method, params=query_params, data=body, headers=headers
     )
     return response
 
@@ -200,7 +179,7 @@ def _get_paged_response(
     results, next_page = _handle_get_response(response, cls)
     yield results
     while next_page:
-        response = client.call_url(next_page, "GET", call_headers=headers)
+        response = client.call_url(next_page, "GET", headers=headers)
         results, next_page = _handle_get_response(response, cls)
         yield results
 

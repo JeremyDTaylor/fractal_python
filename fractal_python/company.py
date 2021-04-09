@@ -181,7 +181,7 @@ def create_company(
     :rtype: CreateResponse
     """
     body = json.dumps(companies, cls=_NewCompanyEncoder)
-    response = client.call_api(f"{COMPANY_ENDPOINT}", "POST", body=body)
+    response = client.call_api(f"{COMPANY_ENDPOINT}", "POST", data=body)
     json_response = json.loads(response.text)
     return deserialize.deserialize(List[CreateResponse], json_response)
 
@@ -215,7 +215,7 @@ def update_company(client: ApiClient, company: Company):
     response = client.call_api(
         f"{COMPANY_ENDPOINT}/{company.id}",
         "PUT",
-        body=body,
+        data=body,
     )
     if response.status_code != 204:
         raise AssertionError(f"status_code:{response.status_code} {response.text}")
