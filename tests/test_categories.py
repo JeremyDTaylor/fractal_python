@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import pytest
 
 from fractal_python.api_client import PARTNER_ID_HEADER, ApiClient

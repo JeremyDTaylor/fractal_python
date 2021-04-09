@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import uuid
 from typing import Any, Callable, Dict, List, Type

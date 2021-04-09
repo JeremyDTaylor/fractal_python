@@ -21,6 +21,7 @@ repos:
       - id: check-toml
       - id: detect-private-key
       - id: fix-encoding-pragma
+        args: ['--remove']
 
   - repo: https://github.com/pre-commit/pygrep-hooks
     rev: v1.8.0

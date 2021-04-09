@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Fractal Banking API service."""
 from fractal_python.banking.accounts import (
     accounts,
