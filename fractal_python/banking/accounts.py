@@ -4,7 +4,7 @@ from typing import Generator, List, Optional
 
 import arrow
 import attr
-import deserialize  # type: ignore
+import deserialize
 
 from fractal_python.api_client import (
     ApiClient,
@@ -124,7 +124,7 @@ BALANCE_TYPES_RE = "|".join(BALANCE_TYPES)
 
 
 @deserialize.parser("amount", _money_amount)
-class Amount:
+class MoneyAmount:
     r"""
     :attr currency: the currency of the account.
     :attr date: date of the balance
@@ -156,7 +156,7 @@ class AccountEntity:
 @deserialize.auto_snake()
 @deserialize.parser("date", _arrow_or_none)
 @deserialize.parser("amount", _money_amount)
-class BankBalance(Amount, AccountEntity):
+class BankBalance(MoneyAmount, AccountEntity):
     r"""A Bank Account Balance with a unique id.
 
     :attr id: unique within the bank at least identifier.
@@ -281,7 +281,7 @@ TRANSACTION_STATUS_RE = "|".join(TRANSACTION_STATUS)
 @deserialize.parser("value_date", _arrow_or_none)
 @deserialize.parser("merchant", merchant)
 @deserialize.parser("category", category)
-class BankTransaction(Amount, AccountEntity):
+class BankTransaction(MoneyAmount, AccountEntity):
     booking_date: arrow.Arrow
     value_date: arrow.Arrow
     transaction_code: Optional[str]

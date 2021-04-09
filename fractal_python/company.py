@@ -81,7 +81,7 @@ class CreateResponse:
 
 def get_companies(client: ApiClient, **kwargs) -> Generator[List[Company], None, None]:
     r"""
-    Retrieves consents by bank id and company id
+    Retrieves consents by bank id and company id.
 
     :param client: the client to use for the api call
     :type client: ApiClient
@@ -92,6 +92,10 @@ def get_companies(client: ApiClient, **kwargs) -> Generator[List[Company], None,
         *crn* (('str')) Unique identifier for the forecast
     :yield: pages of Companies objects
     :rtype: Generator[List[Company], None, None]
+
+    Usage::
+      >>> from fractal_python import company
+      >>> companies = [x for y in company.get_companies(client) for x in y]
     """
     yield from _get_paged_response(
         client=client,
@@ -126,6 +130,16 @@ def get_companies_by_crn(client: ApiClient, crn: str) -> Generator:
 def create_company(
     client: ApiClient, companies: List[NewCompany]
 ) -> List[CreateResponse]:
+    r"""
+    Creates new companies.
+
+    :param client: the client to use for the api call
+    :type client: ApiClient
+    :param companies: new companies to add
+    :type companies: List[NewCompany]
+    :return: response from fractal with new companies
+    :rtype: CreateResponse
+    """
     body = json.dumps(companies, cls=NewCompanyEncoder)
     response = client.call_api(f"{endpoint}", "POST", body=body)
     json_response = json.loads(response.text)

@@ -70,6 +70,22 @@ class CreateBankConsentResponse:
 def create_bank_consent(
     client: ApiClient, bank_id: int, redirect: str, company_id: str
 ) -> CreateBankConsentResponse:
+    r"""
+    Create a bank consent.
+
+    This is the first step in connecting an account.
+
+    :param client: the client to use for the api call
+    :type client: ApiClient
+    :param bank_id: the unique id of the bank
+    :type bank_id: int
+    :param redirect: the urk to redirect the account owner to
+    :type redirect: str
+    :param company_id: the unique id of the company
+    :type company_id: str
+    :return: response from the bank
+    :rtype: CreateBankConsentResponse
+    """
     response = _call_api(
         client=client,
         url=f"{banks_endpoint}/{bank_id}/{consents}",
