@@ -11,7 +11,7 @@ from fractal_python.api_client import (
     _get_paged_response,
     _money_amount,
 )
-from fractal_python.banking.accounts import BALANCE_TYPES_RE
+from fractal_python.banking.accounts import BALANCE_TYPES_RE, AccountEntity, MoneyAmount
 
 BANK_ACCOUNT_PARAMS = [
     "bank_id",
@@ -40,10 +40,13 @@ SOURCES_RE = "|".join(SOURCES)
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 @deserialize.parser("date", _arrow_or_none)
-class Forecast:
-    id: str
-    bank_id: int
-    account_id: str
+class Forecast(AccountEntity):
+    r"""Forecast of transactions on a bank account.
+
+    :attr date: when the forecast was made
+    :attr source: source of the forecast
+    :attr name: name of the forecast
+    """
     date: arrow.Arrow
     source: str = attr.ib(
         validator=[
@@ -82,14 +85,30 @@ def get_forecasts(
 
 
 @attr.s(auto_attribs=True)
+class ForecastEntity(AccountEntity):
+    r"""An identifiable forecast.
+
+    :attr forecast_id: unique id of the forecast
+    """
+    forecast_id: str
+
+
+@attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 @deserialize.parser("value_date", _arrow_or_none)
 @deserialize.parser("amount", _money_amount)
-class ForecastedTransaction:
-    id: str
-    bank_id: int
-    account_id: str
-    forecast_id: str
+class ForecastedTransaction(ForecastEntity):
+    r"""Forecasted Transaction on a Bank Account.
+
+    :attr value_date: forecast value date
+    :attr currency: currency of account
+    :attr amount: money amount
+    :attr type: Credit or Debit
+    :attr merchant: name of merchant
+    :attr category: category of transaction
+    :attr reasons: reasons for predicting the transaction
+    :attr source: model or user
+    """
     value_date: arrow.Arrow
     currency: str
     amount: Decimal
@@ -113,8 +132,7 @@ class ForecastedTransaction:
 def get_forecasted_transactions(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[ForecastedTransaction], None, None]:
-    r"""
-    Get all forecasted transactions linked to the provided forecast id.
+    r"""Get all forecasted transactions linked to the provided forecast id.
 
     Can be filtered by bank_id, account_id, forecast_od, from and to.
 
@@ -146,21 +164,13 @@ def get_forecasted_transactions(
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 @deserialize.parser("date", _arrow_or_none)
-@deserialize.parser("amount", _money_amount)
-class ForecastedBalance:
-    id: str
-    bank_id: int
-    account_id: str
-    forecast_id: str
+class ForecastedBalance(ForecastEntity, MoneyAmount):
+    r"""Forecasted Balance of a Bank Account.
+
+    :attr date: forecast balance date
+    :attr source: model or user
+    """
     date: arrow.Arrow
-    currency: str
-    amount: Decimal
-    type: str = attr.ib(
-        validator=[
-            attr.validators.instance_of(str),
-            attr.validators.matches_re(BALANCE_TYPES_RE),
-        ]
-    )
     source: str = attr.ib(
         validator=[
             attr.validators.instance_of(str),
@@ -172,8 +182,7 @@ class ForecastedBalance:
 def get_forecasted_balances(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[ForecastedBalance], None, None]:
-    r"""
-    Get all forecasted balances linked to the provided forecast id.
+    r"""Get all forecasted balances linked to the provided forecast id.
 
     Can filter on bank_id, account_id, forecast_id, from and to
 

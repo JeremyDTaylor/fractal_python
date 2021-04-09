@@ -49,7 +49,7 @@ def test_authorise(requests_mock, freezer, live):  # skipcq: PYL-W0613
         request_headers=headers,
     )
     live.expires_at = arrow.now().shift(seconds=-1801)
-    live.authorise()
+    live._authorise()
     assert (
         live.expires_at.int_timestamp == arrow.now().shift(seconds=1800).int_timestamp
     )

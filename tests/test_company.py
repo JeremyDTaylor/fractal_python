@@ -5,14 +5,10 @@ import pytest
 from fractal_python.api_client import ApiClient
 from fractal_python.company import (
     Company,
-    CompanyEncoder,
     NewCompany,
-    NewCompanyEncoder,
     create_company,
     delete_company,
     get_companies,
-    get_companies_by_crn,
-    get_companies_by_external_id,
     get_company,
     new_company,
     update_company,
@@ -118,31 +114,6 @@ def test_deserialize_company():
 
 
 @pytest.fixture()
-def valid_new_company() -> NewCompany:
-    return NewCompany(
-        name="valid_new_company name",
-        description="valid_new_company description",
-        website="valid_new_company website",
-        industry="valid_new_company industry",
-        address="valid_new_company address",
-        external_id="valid_new_company external id",
-        crn="valid_new_company crn",
-    )
-
-
-def test_new_company_encoder(valid_new_company: NewCompany):
-    encoder = NewCompanyEncoder()
-    new_company = encoder.default(valid_new_company)
-    assert new_company["name"] == valid_new_company.name
-    assert new_company["description"] == valid_new_company.description
-    assert new_company["website"] == valid_new_company.website
-    assert new_company["industry"] == valid_new_company.industry
-    assert new_company["address"] == valid_new_company.address
-    assert new_company["externalId"] == valid_new_company.external_id
-    assert new_company["crn"] == valid_new_company.crn
-
-
-@pytest.fixture()
 def valid_company() -> Company:
     return Company(
         id="company id",
@@ -155,20 +126,6 @@ def valid_company() -> Company:
         external_id="valid_new_company external id",
         crn="valid_new_company crn",
     )
-
-
-def test_company_encoder(valid_company: Company):
-    encoder = CompanyEncoder()
-    company = encoder.default(valid_company)
-    assert company["id"] == valid_company.id
-    assert company["createdAt"] == valid_company.created_at.isoformat()
-    assert company["name"] == valid_company.name
-    assert company["description"] == valid_company.description
-    assert company["website"] == valid_company.website
-    assert company["industry"] == valid_company.industry
-    assert company["address"] == valid_company.address
-    assert company["externalId"] == valid_company.external_id
-    assert company["crn"] == valid_company.crn
 
 
 @pytest.fixture()
@@ -264,7 +221,7 @@ def test_get_company_by_external_id(test_client: ApiClient, requests_mock):
     )
     companies = [
         item
-        for sublist in get_companies_by_external_id(test_client, external_id="test")
+        for sublist in get_companies(test_client, external_id="test")
         for item in sublist
     ]
     assert len(companies) == len(GET_COMPANIES_1_PAGE_1["results"])
@@ -278,9 +235,7 @@ def test_get_company_by_crn(test_client: ApiClient, requests_mock):
         "GET", "/company/v2/companies?crn=test", json=GET_COMPANIES_1_PAGE_1
     )
     companies = [
-        item
-        for sublist in get_companies_by_crn(test_client, crn="test")
-        for item in sublist
+        item for sublist in get_companies(test_client, crn="test") for item in sublist
     ]
     assert len(companies) == len(GET_COMPANIES_1_PAGE_1["results"])
 

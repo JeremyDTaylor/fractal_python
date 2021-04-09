@@ -18,6 +18,14 @@ AUTHORIZATION_HEADER = "Authorization"
 
 
 class ApiClient:
+    r"""Client for Fractal API.
+
+    :attr auth_url: URL of the authorisation endpoint
+    :attr base_url: URL for the API Version
+    :attr api_key: secret api key
+    :attr partner_id: unique id of the partner
+    """
+
     def __init__(self, auth_url: str, base_url: str, api_key: str, partner_id: str):
         r"""Fractal API Client.
 
@@ -35,7 +43,7 @@ class ApiClient:
         }
         self.expires_at = arrow.now().shift(seconds=-30)
 
-    def call_api(
+    def _call_api(
         self,
         resource_path: str,
         method: str,
@@ -44,7 +52,7 @@ class ApiClient:
         call_headers: Optional[Dict[str, str]] = None,
     ) -> requests.Response:
         url = self.base_url + resource_path
-        return self.call_url(
+        return self._call_url(
             url=url,
             method=method,
             query_params=query_params,
@@ -52,7 +60,7 @@ class ApiClient:
             call_headers=call_headers,
         )
 
-    def call_url(
+    def _call_url(
         self,
         url: str,
         method: str,
@@ -60,14 +68,14 @@ class ApiClient:
         body: Optional[str] = None,
         call_headers: Optional[Dict[str, str]] = None,
     ) -> requests.Response:
-        self.authorise()
+        self._authorise()
         call_headers = call_headers or {}
         call_headers.update(self.headers)
         return requests.request(
             method, url, params=query_params, headers=call_headers, data=body
         )
 
-    def authorise(self):
+    def _authorise(self):
         now = arrow.now()
         if now > self.expires_at:
             url = self.auth_url + "/token"
@@ -81,8 +89,7 @@ class ApiClient:
 
 
 def sandbox(api_key: str, partner_id: str) -> ApiClient:
-    r"""
-    Returns a client for the sandbox api.
+    r"""Make a client for the sandbox api.
 
     :param api_key: secret key issued to the partner
     :param partner_id: unique if of the partner
@@ -98,8 +105,7 @@ def sandbox(api_key: str, partner_id: str) -> ApiClient:
 
 
 def live(api_key: str, partner_id: str) -> ApiClient:
-    r"""
-    Returns a client for the live api.
+    r"""Make a client for the live api.
 
     :param api_key: secret key issued to the partner
     :param partner_id: unique if of the partner
@@ -123,7 +129,7 @@ def _call_api(
     company_id: str = None,
 ) -> requests.Response:
     headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
-    response: requests.Response = client.call_api(
+    response: requests.Response = client._call_api(
         url, method, query_params=query_params, body=body, call_headers=headers
     )
     return response
@@ -160,7 +166,7 @@ def _get_paged_response(
     results, next_page = _handle_get_response(response, cls)
     yield results
     while next_page:
-        response = client.call_url(next_page, "GET", call_headers=headers)
+        response = client._call_url(next_page, "GET", call_headers=headers)
         results, next_page = _handle_get_response(response, cls)
         yield results
 

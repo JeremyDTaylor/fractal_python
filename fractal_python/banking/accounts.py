@@ -24,7 +24,6 @@ SOURCES_RE = "|".join(SOURCES)
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class AccountInformation:
-
     r"""Open Banking Read/Write API Account Information such as OBReadAccount6.
 
     :attr schema_name: identification scheme name, in a coded form as published
@@ -45,15 +44,14 @@ class AccountInformation:
     secondary_identification: Optional[str]
 
 
-def account_information(value: str) -> AccountInformation:
+def _account_information(value: str) -> AccountInformation:
     return deserialize.deserialize(List[AccountInformation], value)
 
 
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
-@deserialize.parser("account", account_information)
+@deserialize.parser("account", _account_information)
 class BankAccount:
-
     r"""A Bank Account with a unique id.
 
     :attr id: unique within the bank at least identifier.
@@ -80,8 +78,7 @@ class BankAccount:
 def retrieve_bank_accounts(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankAccount], None, None]:
-    r"""
-    Retrieves pages of all connected bank accounts for a business.
+    r"""Retrieve pages of all connected bank accounts for a business.
 
     Can be filtered by providing a bank_id.
 
@@ -124,11 +121,12 @@ BALANCE_TYPES_RE = "|".join(BALANCE_TYPES)
 
 @deserialize.parser("amount", _money_amount)
 class MoneyAmount:
-    r"""
+    r"""Amount with currency and credit/debit.
+
     :attr currency: the currency of the account.
-    :attr date: date of the balance
     :attr amount: decimal amount
-    :attr type: either DEBIT or CREDIT"""
+    :attr type: either DEBIT or CREDIT
+    """
     currency: str
     amount: Decimal
     type: str = attr.ib(
@@ -140,11 +138,11 @@ class MoneyAmount:
 
 
 class AccountEntity:
-    r"""A uniquely identifiable Bank Account entity.
+    r"""A uniquely identifiable Account related entity.
 
     :attr id: unique within the bank at least identifier.
-    :attr account_id: account that this balance is for.
     :attr bank_id: unique id of the bank that operates the account.
+    :attr account_id: account that this balance is for.
     """
     id: str
     bank_id: int
@@ -158,11 +156,10 @@ class AccountEntity:
 class BankBalance(MoneyAmount, AccountEntity):
     r"""A Bank Account Balance with a unique id.
 
-    :attr id: unique within the bank at least identifier.
-    :attr account_id: account that this balance is for.
-    :attr bank_id: unique id of the bank that operates the account.
-    :attr currency: the currency of the account.
     :attr date: date of the balance
+    :attr status: balances can be open, close, intermediate etc.
+    :attr external_id: alternate identifier for users of the api
+    :attr source: MANUALIMPORT or OPENBANKING
     """
     date: arrow.Arrow
     status: str = attr.ib(
@@ -183,9 +180,7 @@ class BankBalance(MoneyAmount, AccountEntity):
 def retrieve_bank_balances(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankBalance], None, None]:
-    r"""
-    Pages of cash balances are returned for all the bank accounts that have been
-    connected to the company.
+    r"""Get pages of cash balances for all the connected bank accounts.
 
     Balances can be filtered by bank_id and account_id.
 
@@ -220,8 +215,7 @@ MERCHANT_SOURCE_TYPES_RE = "|".join(MERCHANT_SOURCE_TYPES)
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class Merchant:
-
-    r"""Merchant
+    r"""Merchant.
 
     Any counter party useful for categorisation.
 
@@ -243,7 +237,7 @@ class Merchant:
     )
 
 
-def merchant(value: str) -> Merchant:
+def _merchant(value: str) -> Merchant:
     return deserialize.deserialize(Merchant, value)
 
 
@@ -254,6 +248,14 @@ CATEGORY_SOURCE_TYPES_RE = "|".join(CATEGORY_SOURCE_TYPES)
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class Category:
+    r"""Category of a transaction.
+
+    :attr id: str
+    :attr name: str
+    :attr category_code: Optional[str]
+    :attr address_line: Optional[str]
+    :attr source: str
+    """
     id: str
     name: str
     category_code: Optional[str]
@@ -266,7 +268,7 @@ class Category:
     )
 
 
-def category(value: str) -> Category:
+def _category(value: str) -> Category:
     return deserialize.deserialize(Category, value)
 
 
@@ -278,9 +280,25 @@ TRANSACTION_STATUS_RE = "|".join(TRANSACTION_STATUS)
 @deserialize.auto_snake()
 @deserialize.parser("booking_date", _arrow_or_none)
 @deserialize.parser("value_date", _arrow_or_none)
-@deserialize.parser("merchant", merchant)
-@deserialize.parser("category", category)
+@deserialize.parser("merchant", _merchant)
+@deserialize.parser("category", _category)
 class BankTransaction(MoneyAmount, AccountEntity):
+    r"""Transaction on a bank account.
+
+    :attr booking_date: arrow.Arrow
+    :attr value_date: arrow.Arrow
+    :attr transaction_code: Optional[str]
+    :attr transaction_sub_code: Optional[str]
+    :attr proprietary_code: Optional[str]
+    :attr proprietary_sub_code: Optional[str]
+    :attr reference: Optional[str]
+    :attr description: str
+    :attr status: str
+    :attr merchant: Optional[Merchant]
+    :attr category: Optional[Category]
+    :attr external_id: str
+    :attr source: str
+    """
     booking_date: arrow.Arrow
     value_date: arrow.Arrow
     transaction_code: Optional[str]
@@ -309,8 +327,7 @@ class BankTransaction(MoneyAmount, AccountEntity):
 def retrieve_bank_transactions(
     client: ApiClient, company_id: str, **kwargs
 ) -> Generator[List[BankTransaction], None, None]:
-    r"""Retrieves pages of bank transactions for all the bank accounts
-    connected to the company.
+    r"""Retrieve pages of bank transactions for all connected accounts.
 
     Transactions can be filtered by bank_id, account_id, from and to.
 

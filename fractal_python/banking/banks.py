@@ -20,6 +20,13 @@ consents = "consents"
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class Bank:
+    r"""Bank.
+
+    :attr id: unique id of the bank
+    :attr name: name of the bank
+    :attr logo: bank logo
+    :attr logo_url: url to logo
+    """
     id: int
     name: str
     logo: Optional[str]
@@ -32,11 +39,24 @@ def new_bank(
     logo: str = None,
     logo_url: str = None,
 ) -> Bank:
+    r"""Make a new Bank object.
+
+    :param bank_id: unique id of the bank
+    :type bank_id: int
+    :param name: name of the bank
+    :type name: str
+    :param logo: logo
+    :type logo: str
+    :param logo_url: url to the logo
+    :type logo_url: str
+    :return: new Bank object
+    :rtype: Bank
+    """
     return Bank(bank_id, name, logo, logo_url)
 
 
 def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
-    r"""Retrieves all banks.
+    r"""Retrieve all banks.
 
     :param client: the client to use for the api call
     :type client: ApiClient
@@ -59,6 +79,14 @@ def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
 @attr.s(auto_attribs=True)
 @deserialize.auto_snake()
 class CreateBankConsentResponse:
+    r"""Response for a CreateBankConsent call.
+
+    :attr signin_url: URL user will sign in to bank at
+    :attr consent_id: unique id of the consent
+    :attr bank_id: unique id of the bank
+    :attr type: type of consent
+    :attr permission: permissions available
+    """
     signin_url: str
     consent_id: str
     bank_id: int
@@ -69,8 +97,7 @@ class CreateBankConsentResponse:
 def create_bank_consent(
     client: ApiClient, bank_id: int, redirect: str, company_id: str
 ) -> CreateBankConsentResponse:
-    r"""
-    Create a bank consent.
+    r"""Create a bank consent.
 
     This is the first step in connecting an account.
 
@@ -105,6 +132,18 @@ def create_bank_consent(
 @deserialize.parser("date_created", _arrow_or_none)
 @deserialize.parser("authorised_date", _arrow_or_none)
 class BankConsent:
+    r"""Bank Consent for company.
+
+    :attr company_id: unique identifier for the company
+    :attr permission: permissions given by account owner
+    :attr expiry_date: consent may expire
+    :attr consent_id: unique id for this consent
+    :attr bank_id: unique id of the bank
+    :attr date_created: when this consent was created
+    :attr authorised_date: when the consent was last authorised
+    :attr consent_type: type of consent
+    :attr status: status of consent
+    """
     company_id: str
     permission: str
     expiry_date: Optional[arrow.Arrow]
@@ -119,7 +158,7 @@ class BankConsent:
 def retrieve_bank_consents(
     client: ApiClient, bank_id: int, company_id: Optional[str] = None
 ) -> Generator[List[BankConsent], None, None]:
-    r"""Retrieves consents by bank id and company id
+    r"""Retrieve consents by bank id and company id.
 
     :param client: the client to use for the api call
     :type client: ApiClient
@@ -149,8 +188,9 @@ def put_bank_consent(
     consent_id: str,
     company_id: str,
 ):
-    r"""
-    Call this after user has been redirected back from the bank
+    r"""Put a Bank Consent for a Company.
+
+    Call this after user has been redirected back from the bank.
 
     :param client: the client to use for the api call
     :type client: ApiClient
@@ -186,8 +226,9 @@ def delete_bank_consent(
     consent_id: str,
     company_id: str,
 ):
-    r"""
-    Call this after user has been redirected back from the bank
+    r"""Delete a bank consent.
+
+    Use this when a bank account owner wants to disconnect their account.
 
     :param client: the client to use for the api call
     :type client: ApiClient

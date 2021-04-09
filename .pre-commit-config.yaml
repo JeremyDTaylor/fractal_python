@@ -89,3 +89,8 @@ repos:
     rev: v1.17.0
     hooks:
       - id: setup-cfg-fmt
+
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.0.0
+    hooks:
+    -   id: pydocstyle
