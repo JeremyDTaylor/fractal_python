@@ -43,16 +43,33 @@ class ApiClient:
         }
         self.expires_at = arrow.now().shift(seconds=-30)
 
-    def _call_api(
+    def call_api(
         self,
         resource_path: str,
         method: str,
-        query_params: Dict[str, Any] = None,
+        query_params: Optional[Dict[str, Any]] = None,
         body: Optional[str] = None,
         call_headers: Optional[Dict[str, str]] = None,
     ) -> requests.Response:
+        r"""Call the Fractal API.
+
+        Makes RESTful calls to endpoints.
+
+        :param resource_path: path to the resource
+        :type resource_path: str
+        :param method: GET, DELETE, PUT, POST
+        :type method: str
+        :param query_params: (optional) dictionary of query parameters
+        :type query_params: Optional[Dict[str, Any]]
+        :param body: (optional) payload
+        :type body: Optional[str]
+        :param call_headers: optional headers usually company id
+        :type call_headers: Optional[Dict[str, str]]
+        :return: response
+        :rtype: requests.Response
+        """
         url = self.base_url + resource_path
-        return self._call_url(
+        return self.call_url(
             url=url,
             method=method,
             query_params=query_params,
@@ -60,7 +77,7 @@ class ApiClient:
             call_headers=call_headers,
         )
 
-    def _call_url(
+    def call_url(
         self,
         url: str,
         method: str,
@@ -68,6 +85,23 @@ class ApiClient:
         body: Optional[str] = None,
         call_headers: Optional[Dict[str, str]] = None,
     ) -> requests.Response:
+        r"""Call a Fractal API URL.
+
+        Often used to get next page.
+
+        :param url: full url of the resource
+        :type url: str
+        :param method: GET, DELETE, PUT, POST
+        :type method: str
+        :param query_params: (optional) dictionary of query parameters
+        :type query_params: Optional[Dict[str, Any]]
+        :param body: (optional) payload
+        :type body: Optional[str]
+        :param call_headers: optional headers usually company id
+        :type call_headers: Optional[Dict[str, str]]
+        :return: response
+        :rtype: requests.Response
+        """
         self._authorise()
         call_headers = call_headers or {}
         call_headers.update(self.headers)
@@ -129,7 +163,7 @@ def _call_api(
     company_id: str = None,
 ) -> requests.Response:
     headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
-    response: requests.Response = client._call_api(
+    response: requests.Response = client.call_api(
         url, method, query_params=query_params, body=body, call_headers=headers
     )
     return response
@@ -166,7 +200,7 @@ def _get_paged_response(
     results, next_page = _handle_get_response(response, cls)
     yield results
     while next_page:
-        response = client._call_url(next_page, "GET", call_headers=headers)
+        response = client.call_url(next_page, "GET", call_headers=headers)
         results, next_page = _handle_get_response(response, cls)
         yield results
 

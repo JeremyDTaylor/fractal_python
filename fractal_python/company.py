@@ -160,7 +160,7 @@ def get_company(client: ApiClient, company_id: str) -> Company:
     :return: company matching the unique id
     :rtype: Company
     """
-    response = client._call_api(
+    response = client.call_api(
         f"{COMPANY_ENDPOINT}/{company_id}",
         "GET",
     )
@@ -181,7 +181,7 @@ def create_company(
     :rtype: CreateResponse
     """
     body = json.dumps(companies, cls=_NewCompanyEncoder)
-    response = client._call_api(f"{COMPANY_ENDPOINT}", "POST", body=body)
+    response = client.call_api(f"{COMPANY_ENDPOINT}", "POST", body=body)
     json_response = json.loads(response.text)
     return deserialize.deserialize(List[CreateResponse], json_response)
 
@@ -197,7 +197,7 @@ def delete_company(client: ApiClient, company_id: str):
     """
     if not company_id.strip():
         raise AssertionError(f'Invalid company_id "{company_id}"')
-    response = client._call_api(f"{COMPANY_ENDPOINT}/{company_id}", "DELETE")
+    response = client.call_api(f"{COMPANY_ENDPOINT}/{company_id}", "DELETE")
     if response.status_code != 202:
         raise AssertionError(f"status_code:{response.status_code} {response.text}")
 
@@ -212,7 +212,7 @@ def update_company(client: ApiClient, company: Company):
     :raises AssertionError: When response code not 204
     """
     body = json.dumps(company, cls=_CompanyEncoder)
-    response = client._call_api(
+    response = client.call_api(
         f"{COMPANY_ENDPOINT}/{company.id}",
         "PUT",
         body=body,
