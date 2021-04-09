@@ -1,3 +1,6 @@
+import json
+import urllib
+
 import arrow
 import deserialize  # type: ignore
 import pytest
@@ -5,8 +8,7 @@ import pytest
 from fractal_python.api_client import ApiClient
 from fractal_python.company import (
     Company,
-    NewCompany,
-    create_company,
+    create_companies,
     delete_company,
     get_companies,
     get_company,
@@ -205,9 +207,76 @@ def test_get_company(test_client: ApiClient):
     assert company.name == COMPANIES[0]["name"]
 
 
-def test_create_company(test_client: ApiClient):
-    companies = [deserialize.deserialize(NewCompany, dict(name="test"))]
-    responses = create_company(test_client, companies)
+CREATE_COMPANIES_RESPONSE = {
+    "results": [
+        {"id": "CompanyID1234", "message": "Created", "status": 201},
+        {"id": "CompanyID5678", "message": "Failed", "status": 400},
+    ],
+    "links": {},
+}
+
+
+CREATE_COMPANIES_DATA = {
+    "values": [
+        {
+            "name": "Company name",
+            "description": "Micro SME",
+            "website": "www.companyname.com",
+            "address": "London",
+            "industry": "IT",
+            "externalId": "19988-77661",
+            "crn": "14455-345",
+        },
+        {
+            "name": "Fintech Company",
+            "description": "SME Fintech",
+            "website": "askfractal.com",
+            "industry": "IT",
+            "address": "Ig2 London, Ilford",
+            "externalId": "external-12112",
+            "crn": "crn-1211",
+        },
+    ]
+}
+
+
+def match_payload(request):
+    new_companies = json.loads(urllib.parse.unquote(request.text))
+    for index, company in enumerate(json.loads(new_companies["values"])):
+        for key, value in company.items():
+            if CREATE_COMPANIES_DATA["values"][index][key] != value:
+                return False
+    return True
+
+
+@pytest.fixture()
+def mock_client_create_companies(requests_mock) -> ApiClient:
+    requests_mock.register_uri(
+        "POST",
+        "/company/v2/companies",
+        json=CREATE_COMPANIES_RESPONSE,
+        additional_matcher=match_payload,
+    )
+    return make_sandbox(requests_mock)
+
+
+def test_create_companies(mock_client_create_companies: ApiClient):
+    new_companies = []
+    for value in CREATE_COMPANIES_DATA["values"]:
+        company = new_company(
+            name=value["name"],
+            description=value["description"],
+            industry=value["industry"],
+            address=value["address"],
+            external_id=value["externalId"],
+            crn=value["crn"],
+        )
+        new_companies.append(company)
+    responses = [
+        item
+        for sublist in create_companies(mock_client_create_companies, new_companies)
+        for item in sublist
+    ]
     assert responses[0].status == 201
     assert responses[1].status == 400
 

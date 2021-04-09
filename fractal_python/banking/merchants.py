@@ -40,9 +40,5 @@ def retrieve_merchants(client: ApiClient) -> Generator[List[Merchant], None, Non
     :rtype: Generator[List[Merchant], None, None]
     """
     yield from _get_paged_response(
-        client=client,
-        company_id=None,
-        params=None,
-        url=merchants,
-        cls=Merchant,
+        client=client, url=merchants, cls=Merchant, param_keys=None, company_id=None
     )

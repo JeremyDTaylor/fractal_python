@@ -139,13 +139,12 @@ def get_companies(client: ApiClient, **kwargs) -> Generator[List[Company], None,
     """
     yield from _get_paged_response(
         client=client,
-        company_id=None,
-        params=[
+        url=f"{COMPANY_ENDPOINT}",
+        cls=Company,
+        param_keys=[
             "external_id",
             "crn",
         ],
-        url=f"{COMPANY_ENDPOINT}",
-        cls=Company,
         **kwargs,
     )
 
@@ -168,22 +167,32 @@ def get_company(client: ApiClient, company_id: str) -> Company:
     return deserialize.deserialize(Company, json_response)
 
 
-def create_company(
+def create_companies(
     client: ApiClient, companies: List[NewCompany]
-) -> List[CreateResponse]:
+) -> Generator[List[CreateResponse], None, None]:
     r"""Create new companies.
 
     :param client: the client to use for the api call
     :type client: ApiClient
     :param companies: new companies to add
     :type companies: List[NewCompany]
-    :return: response from fractal with new companies
-    :rtype: CreateResponse
+    :yield: response from fractal with new companies
+    :rtype: Generator[List[CreateResponse], None, None]
+
+    Usage::
+      >>> from fractal_python import company
+      >>> jl = company.new_company(name="Julia Labs", crn="12387305")
+      >>> jr = company.new_company(name="Julia Research", crn="12075072")
+      >>>  company.create_companies(client=client, companies=[jl,jr])
     """
-    body = json.dumps(companies, cls=_NewCompanyEncoder)
-    response = client.call_api(f"{COMPANY_ENDPOINT}", "POST", data=body)
-    json_response = json.loads(response.text)
-    return deserialize.deserialize(List[CreateResponse], json_response)
+    body = dict(values=json.dumps(companies, cls=_NewCompanyEncoder))
+    yield from _get_paged_response(
+        client=client,
+        url=f"{COMPANY_ENDPOINT}",
+        cls=CreateResponse,
+        data=json.dumps(body),
+        method="POST",
+    )
 
 
 def delete_company(client: ApiClient, company_id: str):

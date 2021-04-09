@@ -32,9 +32,5 @@ def retrieve_categories(client: ApiClient) -> Generator[List[Category], None, No
     :rtype: Generator[List[Category], None, None]
     """
     yield from _get_paged_response(
-        client=client,
-        company_id=None,
-        params=None,
-        url=categories,
-        cls=Category,
+        client=client, url=categories, cls=Category, param_keys=None, company_id=None
     )

@@ -68,11 +68,7 @@ def retrieve_banks(client: ApiClient) -> Generator[List[Bank], None, None]:
       >>> banks =[x for y in banking.retrieve_banks(client) for x in y]
     """
     yield from _get_paged_response(
-        client=client,
-        company_id=None,
-        params=None,
-        url=banks_endpoint,
-        cls=Bank,
+        client=client, url=banks_endpoint, cls=Bank, param_keys=None, company_id=None
     )
 
 
@@ -116,8 +112,8 @@ def create_bank_consent(
         client=client,
         url=f"{banks_endpoint}/{bank_id}/{consents}",
         method="POST",
-        body=json.dumps(dict(redirect=redirect)),
         company_id=company_id,
+        data=json.dumps(dict(redirect=redirect)),
     )
     json_response = json.loads(response.text)
     bank_consent_response = deserialize.deserialize(
@@ -171,11 +167,7 @@ def retrieve_bank_consents(
     """
     url = f"{banks_endpoint}/{bank_id}/{consents}"
     yield from _get_paged_response(
-        client=client,
-        company_id=company_id,
-        params=[],
-        url=url,
-        cls=BankConsent,
+        client=client, url=url, cls=BankConsent, param_keys=[], company_id=company_id
     )
 
 
@@ -213,8 +205,8 @@ def put_bank_consent(
         client,
         f"{banks_endpoint}/{bank_id}/{consents}/{consent_id}",
         "PUT",
-        body=json.dumps(payload),
         company_id=company_id,
+        data=json.dumps(payload),
     )
     if response.status_code != 204:
         raise AssertionError(f"status_code:{response.status_code} {response.text}")

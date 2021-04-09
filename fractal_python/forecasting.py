@@ -89,10 +89,10 @@ def get_forecasts(
     """
     yield from _get_paged_response(
         client=client,
-        company_id=company_id,
-        params=BANK_ACCOUNT_PARAMS,
         url=forecasts,
         cls=Forecast,
+        param_keys=BANK_ACCOUNT_PARAMS,
+        company_id=company_id,
         **kwargs
     )
 
@@ -177,10 +177,10 @@ def get_forecasted_transactions(
     """
     yield from _get_paged_response(
         client=client,
-        company_id=company_id,
-        params=FORECASTED_PARAMS,
         url=transactions,
         cls=ForecastedTransaction,
+        param_keys=FORECASTED_PARAMS,
+        company_id=company_id,
         **kwargs
     )
 
@@ -227,9 +227,9 @@ def get_forecasted_balances(
     """
     yield from _get_paged_response(
         client=client,
-        company_id=company_id,
-        params=FORECASTED_PARAMS,
         url=balances,
         cls=ForecastedBalance,
+        param_keys=FORECASTED_PARAMS,
+        company_id=company_id,
         **kwargs
     )

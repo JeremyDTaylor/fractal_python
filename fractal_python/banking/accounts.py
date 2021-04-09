@@ -94,10 +94,10 @@ def retrieve_bank_accounts(
     """
     yield from _get_paged_response(
         client=client,
-        company_id=company_id,
-        params=("bank_id",),
         url=accounts,
         cls=BankAccount,
+        param_keys=("bank_id",),
+        company_id=company_id,
         **kwargs
     )
 
@@ -203,10 +203,10 @@ def retrieve_bank_balances(
     """
     yield from _get_paged_response(
         client=client,
-        company_id=company_id,
-        params=["bank_id", "account_id", "from", "to"],
         url=balances,
         cls=BankBalance,
+        param_keys=["bank_id", "account_id", "from", "to"],
+        company_id=company_id,
         **kwargs
     )
 
@@ -350,14 +350,14 @@ def retrieve_bank_transactions(
     """
     yield from _get_paged_response(
         client=client,
-        company_id=company_id,
-        params=[
+        url=transactions,
+        cls=BankTransaction,
+        param_keys=[
             "bank_id",
             "account_id",
             "from",
             "to",
         ],
-        url=transactions,
-        cls=BankTransaction,
+        company_id=company_id,
         **kwargs
     )

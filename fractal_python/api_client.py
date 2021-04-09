@@ -1,6 +1,6 @@
 import json
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any, Collection, Dict, Generator, List, Optional, Type
+from typing import Any, Collection, Generator, List, Optional, Type
 
 import arrow
 import deserialize
@@ -134,16 +134,11 @@ def live(api_key: str, partner_id: str) -> ApiClient:
 
 
 def _call_api(
-    client: ApiClient,
-    url: str,
-    method: str,
-    query_params: Dict[str, Any] = None,
-    body: str = None,
-    company_id: str = None,
+    client: ApiClient, url: str, method: str, company_id: str = None, **kwargs
 ) -> requests.Response:
     headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
     response: requests.Response = client.call_api(
-        url, method, params=query_params, data=body, headers=headers
+        url, method, headers=headers, **kwargs
     )
     return response
 
@@ -157,23 +152,25 @@ def _handle_get_response(response, cls):
 
 def _get_paged_response(
     client: ApiClient,
-    company_id: Optional[str],
-    params: Optional[Collection[str]],
     url: str,
     cls: Type,
+    param_keys: Optional[Collection[str]] = None,
+    company_id: Optional[str] = None,
     **kwargs,
 ) -> Generator:
-    query_params = (
-        {camelcase(key): kwargs[key] for key in params if key in kwargs}
-        if params
+    params = (
+        {camelcase(key): kwargs.pop(key) for key in param_keys if key in kwargs}
+        if param_keys
         else {}
     )
+    method = kwargs.pop("method", "GET")
     response = _call_api(
         client=client,
         url=url,
-        method="GET",
-        query_params=query_params,
+        method=method,
         company_id=company_id,
+        params=params,
+        **kwargs,
     )
     headers = {COMPANY_ID_HEADER: company_id} if company_id else {}
     results, next_page = _handle_get_response(response, cls)
