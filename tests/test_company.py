@@ -242,7 +242,7 @@ CREATE_COMPANIES_DATA = {
 
 def match_payload(request):
     new_companies = json.loads(urllib.parse.unquote(request.text))
-    for index, company in enumerate(json.loads(new_companies["values"])):
+    for index, company in enumerate(new_companies["values"]):
         for key, value in company.items():
             if CREATE_COMPANIES_DATA["values"][index][key] != value:
                 return False

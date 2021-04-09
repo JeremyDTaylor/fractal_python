@@ -185,12 +185,12 @@ def create_companies(
       >>> jr = company.new_company(name="Julia Research", crn="12075072")
       >>>  company.create_companies(client=client, companies=[jl,jr])
     """
-    body = dict(values=json.dumps(companies, cls=_NewCompanyEncoder))
+    body = '{"values": ' + json.dumps(companies, cls=_NewCompanyEncoder) + "}"
     yield from _get_paged_response(
         client=client,
         url=f"{COMPANY_ENDPOINT}",
         cls=CreateResponse,
-        data=json.dumps(body),
+        data=body,
         method="POST",
     )
 

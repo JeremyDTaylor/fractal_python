@@ -7,7 +7,6 @@ from fractal_python.banking.accounts import (
     retrieve_bank_transactions,
     transactions,
 )
-from fractal_python.banking.api import BANKING_ENDPOINT
 from fractal_python.banking.banks import (
     Bank,
     BankConsent,
