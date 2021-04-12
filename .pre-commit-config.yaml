@@ -93,4 +93,15 @@ repos:
   - repo: https://github.com/pycqa/pydocstyle
     rev: 6.0.0
     hooks:
-    -   id: pydocstyle
+    - id: pydocstyle
+
+
+  - repo: local
+    hooks:
+    - id: pytest-cov
+      name: pytest
+      stages: [push]
+      language: system
+      entry: pytest --cov-fail-under=100 --cov-branch --cov-report term-missing
+      types: [python]
+      pass_filenames: false
