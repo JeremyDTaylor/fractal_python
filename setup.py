@@ -12,7 +12,7 @@ with open("HISTORY.rst") as history_file:
 
 requirements = [
     "requests>=2.25.1",
-    "attr>=0.3.1",
+    "attrs>=20.3.0",
     "deserialize>=1.8.0",
     "arrow>=1.0.0",
     "stringcase>=1.2.0",
