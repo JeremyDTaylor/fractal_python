@@ -93,7 +93,7 @@ def get_forecasts(
         cls=Forecast,
         param_keys=BANK_ACCOUNT_PARAMS,
         company_id=company_id,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -181,7 +181,7 @@ def get_forecasted_transactions(
         cls=ForecastedTransaction,
         param_keys=FORECASTED_PARAMS,
         company_id=company_id,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -231,5 +231,5 @@ def get_forecasted_balances(
         cls=ForecastedBalance,
         param_keys=FORECASTED_PARAMS,
         company_id=company_id,
-        **kwargs
+        **kwargs,
     )
