@@ -98,7 +98,7 @@ def retrieve_bank_accounts(
         cls=BankAccount,
         param_keys=("bank_id",),
         company_id=company_id,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -207,7 +207,7 @@ def retrieve_bank_balances(
         cls=BankBalance,
         param_keys=["bank_id", "account_id", "from", "to"],
         company_id=company_id,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -359,5 +359,5 @@ def retrieve_bank_transactions(
             "to",
         ],
         company_id=company_id,
-        **kwargs
+        **kwargs,
     )
