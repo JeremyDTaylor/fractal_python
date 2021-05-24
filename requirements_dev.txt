@@ -1,4 +1,4 @@
-pip==21.1.1
+pip==21.1.2
 bump2version==1.0.1
 wheel==0.36.2
 watchdog==2.1.2
@@ -6,7 +6,7 @@ flake8==3.9.2  # https://github.com/PyCQA/flake8
 flake8-isort==4.0.0  # https://github.com/gforcada/flake8-isort
 coverage==5.5  # https://github.com/nedbat/coveragepy
 black==21.5b1  # https://github.com/ambv/black
-pre-commit==2.12.1  # https://github.com/pre-commit/pre-commit
+pre-commit==2.13.0  # https://github.com/pre-commit/pre-commit
 tox==3.23.1
 Sphinx==4.0.2
 twine==3.4.1
