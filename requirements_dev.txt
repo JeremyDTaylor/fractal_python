@@ -8,7 +8,7 @@ coverage==6.2  # https://github.com/nedbat/coveragepy
 black==21.11b1  # https://github.com/ambv/black
 pre-commit==2.15.0  # https://github.com/pre-commit/pre-commit
 tox==3.24.4
-Sphinx==4.0.2
+Sphinx==4.3.1
 twine==3.4.1
 
 pytest-runner==5.3.1
