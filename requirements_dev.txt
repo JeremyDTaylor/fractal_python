@@ -16,5 +16,5 @@ mypy==0.961  # https://github.com/python/mypy
 pytest==7.1.2  # https://github.com/pytest-dev/pytest
 pytest-sugar==0.9.5  # https://github.com/Frozenball/pytest-sugar
 pytest-freezegun==0.4.2 # https://github.com/ktosiek/pytest-freezegun
-pytest-cov==2.12.1
+pytest-cov==3.0.0
 requests-mock==1.9.3
