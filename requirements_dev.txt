@@ -12,7 +12,7 @@ Sphinx==5.0.2
 twine==4.0.1
 
 pytest-runner==6.0.0
-mypy==0.902  # https://github.com/python/mypy
+mypy==0.971  # https://github.com/python/mypy
 pytest==6.2.4  # https://github.com/pytest-dev/pytest
 pytest-sugar==0.9.4  # https://github.com/Frozenball/pytest-sugar
 pytest-freezegun==0.4.2 # https://github.com/ktosiek/pytest-freezegun
