@@ -9,7 +9,7 @@ black==22.10.0  # https://github.com/ambv/black
 pre-commit==2.20.0  # https://github.com/pre-commit/pre-commit
 tox==3.26.0
 Sphinx==5.2.3
-twine==3.4.1
+twine==4.0.1
 
 pytest-runner==5.3.1
 mypy==0.902  # https://github.com/python/mypy
