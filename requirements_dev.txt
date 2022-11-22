@@ -17,4 +17,4 @@ pytest==7.2.0  # https://github.com/pytest-dev/pytest
 pytest-sugar==0.9.6  # https://github.com/Frozenball/pytest-sugar
 pytest-freezegun==0.4.2 # https://github.com/ktosiek/pytest-freezegun
 pytest-cov==4.0.0
-requests-mock==1.9.3
+requests-mock==1.10.0
